@@ -9,3 +9,5 @@ A basic Android app that searches Flickr and display images matching the search 
 ### Glide
 ### RxJava
 ### AndroidX
+
+![](sample.gif)
