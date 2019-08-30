@@ -8,3 +8,4 @@ A basic Android app that searches Flickr and display images matching the search 
 ### Dagger
 ### Glide
 ### RxJava
+### AndroidX
