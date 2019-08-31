@@ -25,7 +25,7 @@ class FlickrAdapter(private val mPhotos: List<Photo>) : RecyclerView.Adapter<Fli
 
     override fun onBindViewHolder(holder: FlickrAdapterViewHolder, position: Int) {
         val photo = mPhotos[position]
-        val imageUrl = "http://farm" + photo.farm + ".staticflickr.com/" + photo.server + "/" + photo.id + "_" + photo.secret + ".jpg"
+        val imageUrl = String.format("https://farm%s.staticflickr.com/%s/%s_%s.jpg", photo.farm, photo.server, photo.id, photo.secret)//"https://farm" + photo.farm + ".staticflickr.com/" + photo.server + "/" + photo.id + "_" + photo.secret + ".jpg"
         Glide.with(context)
                 .load(imageUrl)
                 .apply(RequestOptions().centerInside().transforms(RoundedCorners(25)))
