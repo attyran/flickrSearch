@@ -2,6 +2,7 @@ package com.attyran.flickrsearch
 
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
+import android.view.KeyEvent
 import androidx.recyclerview.widget.GridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
@@ -37,16 +38,19 @@ class FragmentPhotoSearch : Fragment() {
                 .map { inputText: CharSequence -> inputText.isEmpty() }
                 .distinctUntilChanged()
         compositeDisposable.add(setupTextInputObserver(itemInputNameObservable))
+        tag_field.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                tag_field.hideKeyboard()
+                if (!tag_field.text.isNullOrEmpty())
+                    searchTag(tag_field.text.toString())
+                return@OnKeyListener true
+            }
+            false
+        })
 
         search_button.setOnClickListener {
-            viewModel.search(tag_field.text.toString(), object : PhotoSearchClient.CategoriesClientCallback {
-                override fun onSuccess(response: PhotoSearchResponse) {
-                    setupRecyclerView(response.photos.photo)
-                }
-
-                override fun onError(errorMessage: Throwable) {
-                }
-            })
+            tag_field.hideKeyboard()
+            searchTag(tag_field.text.toString())
         }
     }
 
@@ -59,5 +63,16 @@ class FragmentPhotoSearch : Fragment() {
     private fun setupRecyclerView(list: List<Photo>) {
         search_results_rv.layoutManager = GridLayoutManager(context, 2)
         search_results_rv.adapter = FlickrAdapter(list)
+    }
+
+    private fun searchTag(tag: String) {
+        viewModel.search(tag, object : PhotoSearchClient.CategoriesClientCallback {
+            override fun onSuccess(response: PhotoSearchResponse) {
+                setupRecyclerView(response.photos.photo)
+            }
+
+            override fun onError(errorMessage: Throwable) {
+            }
+        })
     }
 }
