@@ -42,20 +42,11 @@ class FlickrAdapter(private val mPhotos: List<Photo>) : RecyclerView.Adapter<Fli
 
         init {
             this.mPhotos = photos
-
             mPhoto = itemView.findViewById(R.id.item_image)
-
             itemView.setOnClickListener(this)
         }
 
         override fun onClick(view: View) {
-//        val position = adapterPosition
-//        val photo = mPhotos[position]
-//        val imageUrl = "http://farm" + photo.farm + ".staticflickr.com/" + photo.server + "/" + photo.id + "_" + photo.secret + ".jpg"
-//
-//        val detailIntent = Intent(this.context, DetailActivity::class.java)
-//        detailIntent.putExtra(context.getString(R.string.image_url), imageUrl)
-//        this.context.startActivity(detailIntent)
         }
     }
 }
