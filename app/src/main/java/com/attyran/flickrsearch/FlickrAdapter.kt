@@ -28,7 +28,7 @@ class FlickrAdapter(private val mPhotos: List<Photo>) : RecyclerView.Adapter<Fli
         val imageUrl = String.format("https://farm%s.staticflickr.com/%s/%s_%s.jpg", photo.farm, photo.server, photo.id, photo.secret)//"https://farm" + photo.farm + ".staticflickr.com/" + photo.server + "/" + photo.id + "_" + photo.secret + ".jpg"
         Glide.with(context)
                 .load(imageUrl)
-                .apply(RequestOptions().centerInside().transforms(RoundedCorners(25)))
+                .apply(RequestOptions().centerInside().transform(RoundedCorners(25)))
                 .into(holder.mPhoto)
     }
 
