@@ -66,7 +66,7 @@ class FragmentPhotoSearch : Fragment() {
     }
 
     private fun searchTag(tag: String) {
-        viewModel.search(tag, object : PhotoSearchClient.CategoriesClientCallback {
+        viewModel.search(tag, object : PhotoSearchClient.PhotoSearchClientCallback {
             override fun onSuccess(response: PhotoSearchResponse) {
                 setupRecyclerView(response.photos.photo)
             }

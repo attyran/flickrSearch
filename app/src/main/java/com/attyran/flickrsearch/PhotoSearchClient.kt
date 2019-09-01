@@ -9,7 +9,7 @@ import javax.inject.Inject
 class PhotoSearchClient
 @Inject constructor(private val backendClient: BackendClient) {
 
-    fun search(tag: String, callback: CategoriesClientCallback) {
+    fun search(tag: String, callback: PhotoSearchClientCallback) {
         backendClient.search(tag).retry(MAX_RETRIES)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -27,7 +27,7 @@ class PhotoSearchClient
                 })
     }
 
-    interface CategoriesClientCallback {
+    interface PhotoSearchClientCallback {
         fun onSuccess(response: PhotoSearchResponse)
         fun onError(errorMessage: Throwable)
     }
