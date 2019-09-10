@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import com.jakewharton.rxbinding2.widget.RxTextView
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -15,7 +15,7 @@ import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.fragment_photo_search.*
 import javax.inject.Inject
 
-class FragmentPhotoSearch : Fragment() {
+class FragmentPhotoSearch : androidx.fragment.app.Fragment() {
 
     @Inject
     lateinit var viewModelFactory: PhotoSearchViewModelFactory
@@ -34,6 +34,14 @@ class FragmentPhotoSearch : Fragment() {
     override fun onStart() {
         super.onStart()
 
+        setupRecyclerView()
+        viewModel.observePhotos().observe(this, Observer {
+            it?.let {
+                val adapter = search_results_rv.adapter as FlickrAdapter
+                adapter.submitList(it)
+            }
+        })
+
         val itemInputNameObservable = RxTextView.textChanges(tag_field)
                 .map { inputText: CharSequence -> inputText.isEmpty() }
                 .distinctUntilChanged()
@@ -42,7 +50,7 @@ class FragmentPhotoSearch : Fragment() {
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
                 tag_field.hideKeyboard()
                 if (!tag_field.text.isNullOrEmpty())
-                    searchTag(tag_field.text.toString())
+                    viewModel.search(tag_field.text.toString())
                 return@OnKeyListener true
             }
             false
@@ -50,7 +58,7 @@ class FragmentPhotoSearch : Fragment() {
 
         search_button.setOnClickListener {
             tag_field.hideKeyboard()
-            searchTag(tag_field.text.toString())
+            viewModel.search(tag_field.text.toString())
         }
     }
 
@@ -60,19 +68,8 @@ class FragmentPhotoSearch : Fragment() {
         }
     }
 
-    private fun setupRecyclerView(list: List<Photo>) {
+    private fun setupRecyclerView() {
         search_results_rv.layoutManager = GridLayoutManager(context, 2)
-        search_results_rv.adapter = FlickrAdapter(list)
-    }
-
-    private fun searchTag(tag: String) {
-        viewModel.search(tag, object : PhotoSearchClient.PhotoSearchClientCallback {
-            override fun onSuccess(response: PhotoSearchResponse) {
-                setupRecyclerView(response.photos.photo)
-            }
-
-            override fun onError(errorMessage: Throwable) {
-            }
-        })
+        search_results_rv.adapter = FlickrAdapter()
     }
 }
