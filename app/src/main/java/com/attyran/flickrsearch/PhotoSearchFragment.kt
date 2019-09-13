@@ -15,7 +15,7 @@ import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.fragment_photo_search.*
 import javax.inject.Inject
 
-class FragmentPhotoSearch : androidx.fragment.app.Fragment() {
+class PhotoSearchFragment : androidx.fragment.app.Fragment() {
 
     @Inject
     lateinit var viewModelFactory: PhotoSearchViewModelFactory

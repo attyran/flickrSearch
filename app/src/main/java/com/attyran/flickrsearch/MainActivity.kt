@@ -9,12 +9,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        loadFragment(FragmentPhotoSearch())
+        loadFragment(PhotoSearchFragment())
     }
 
     private fun loadFragment(fragment: androidx.fragment.app.Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.main_container, fragment)
+        transaction .replace(R.id.main_container, fragment)
         transaction.commit()
     }
 }

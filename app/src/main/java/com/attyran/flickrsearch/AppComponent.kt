@@ -7,5 +7,5 @@ import javax.inject.Singleton
 @Component(modules = [AppModule::class, NetworkModule::class])
 interface AppComponent {
 
-    fun inject(fragmentPhotoSearch: FragmentPhotoSearch)
+    fun inject(photoSearchFragment: PhotoSearchFragment)
 }
