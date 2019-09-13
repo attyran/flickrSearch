@@ -1,6 +1,5 @@
 package com.attyran.flickrsearch
 
-import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -16,12 +15,9 @@ import kotlinx.android.synthetic.main.flickr_rv_item.view.*
 
 class FlickrAdapter : ListAdapter<Photo, FlickrAdapter.FlickrAdapterViewHolder>(FlickrItemCallback()) {
 
-    private lateinit var context: Context
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FlickrAdapterViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val view = inflater.inflate(R.layout.flickr_rv_item, parent, false)
-        context = parent.context
         return FlickrAdapterViewHolder(view)
     }
 
@@ -29,7 +25,7 @@ class FlickrAdapter : ListAdapter<Photo, FlickrAdapter.FlickrAdapterViewHolder>(
         val photo = getItem(position)
         val imageUrl = String.format("https://farm%s.staticflickr.com/%s/%s_%s.jpg",
             photo.farm, photo.server, photo.id, photo.secret)
-        Glide.with(context)
+        Glide.with(holder.mPhoto.context)
                 .load(imageUrl)
                 .apply(RequestOptions().centerInside().transform(RoundedCorners(25)))
                 .into(holder.mPhoto)
@@ -37,8 +33,8 @@ class FlickrAdapter : ListAdapter<Photo, FlickrAdapter.FlickrAdapterViewHolder>(
 
     class FlickrAdapterViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
         internal val mPhoto: ImageView = itemView.item_image
-
         override fun onClick(v: View?) {
+
         }
     }
 
