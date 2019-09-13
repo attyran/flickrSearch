@@ -7,12 +7,12 @@ import javax.inject.Inject
 class PhotoSearchViewModel
 @Inject constructor(private val photoSearchClient: PhotoSearchClient) : ViewModel() {
 
-    private val photos: MutableLiveData<List<Photo>> = MutableLiveData()
+    val photoSearchResponse: MutableLiveData<PhotoSearchResponse> = MutableLiveData()
 
     fun search(tag: String){
         photoSearchClient.search(tag, object : PhotoSearchClient.PhotoSearchClientCallback {
             override fun onSuccess(response: PhotoSearchResponse) {
-                photos.value = response.photos.photo
+                photoSearchResponse.value = response
             }
 
             override fun onError(errorMessage: Throwable) {
@@ -20,5 +20,5 @@ class PhotoSearchViewModel
         })
     }
 
-    fun observePhotos() = photos
+    fun observePhotos() = photoSearchResponse
 }

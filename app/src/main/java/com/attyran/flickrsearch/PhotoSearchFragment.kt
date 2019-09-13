@@ -38,7 +38,7 @@ class PhotoSearchFragment : androidx.fragment.app.Fragment() {
         viewModel.observePhotos().observe(this, Observer {
             it?.let {
                 val adapter = search_results_rv.adapter as FlickrAdapter
-                adapter.submitList(it)
+                adapter.submitList(it.photos.photo)
             }
         })
 
