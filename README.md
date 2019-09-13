@@ -9,5 +9,6 @@ A basic Android app that searches Flickr and display images matching the search 
 ### Glide
 ### RxJava
 ### AndroidX
+### Unit testing via Mockito
 
 ![](sample.gif)
