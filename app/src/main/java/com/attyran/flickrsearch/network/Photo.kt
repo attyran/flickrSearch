@@ -1,4 +1,4 @@
-package com.attyran.flickrsearch
+package com.attyran.flickrsearch.network
 
 data class Photo(val id: String,
                  val owner: String,

@@ -1,4 +1,4 @@
-package com.attyran.flickrsearch
+package com.attyran.flickrsearch.network
 
 import io.reactivex.Single
 import retrofit2.http.GET

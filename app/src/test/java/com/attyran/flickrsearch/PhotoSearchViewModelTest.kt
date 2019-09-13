@@ -2,6 +2,7 @@ package com.attyran.flickrsearch
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
+import com.attyran.flickrsearch.network.*
 import io.reactivex.Single
 import org.junit.Before
 import org.junit.ClassRule
@@ -51,8 +52,22 @@ class PhotoSearchViewModelTest {
     fun testSearchReturned_whenRequested() {
         // mock data
         val mockPhotos = ArrayList<Photo>()
-        val mockResponse = PhotoSearchResponse(Result(mockPhotos))
-        mockPhotos.add(Photo("1234", "mock_owner", "mock_secret", "mock_server", "mock_farm", "mock_title", "mock_ispublic", "mock_isfriend", "mock_isFamily"))
+        val mockResponse = PhotoSearchResponse(
+            Result(mockPhotos)
+        )
+        mockPhotos.add(
+            Photo(
+                "1234",
+                "mock_owner",
+                "mock_secret",
+                "mock_server",
+                "mock_farm",
+                "mock_title",
+                "mock_ispublic",
+                "mock_isfriend",
+                "mock_isFamily"
+            )
+        )
 
         Mockito.`when`(backendClient.search(tag)).
             thenReturn(Single.just(mockResponse))
@@ -65,7 +80,13 @@ class PhotoSearchViewModelTest {
     @Test
     fun testSearchReturned_empty() {
         Mockito.`when`(backendClient.search(tag)).
-            thenReturn(Single.just(PhotoSearchResponse(Result(ArrayList()))))
+            thenReturn(Single.just(
+                PhotoSearchResponse(
+                    Result(
+                        ArrayList()
+                    )
+                )
+            ))
         viewModel.photoSearchResponse.observeForever(tempObserver)
         viewModel.search(tag)
 

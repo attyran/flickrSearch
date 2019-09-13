@@ -1,4 +1,4 @@
-package com.attyran.flickrsearch
+package com.attyran.flickrsearch.di
 
 import android.app.Application
 

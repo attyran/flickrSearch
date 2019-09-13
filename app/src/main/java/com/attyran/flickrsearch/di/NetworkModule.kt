@@ -1,5 +1,7 @@
-package com.attyran.flickrsearch
+package com.attyran.flickrsearch.di
 
+import com.attyran.flickrsearch.network.BackendClient
+import com.attyran.flickrsearch.BuildConfig
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient

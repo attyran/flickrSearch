@@ -1,6 +1,5 @@
-package com.attyran.flickrsearch
+package com.attyran.flickrsearch.network
 
-import androidx.lifecycle.MutableLiveData
 import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable

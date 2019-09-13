@@ -1,5 +1,6 @@
-package com.attyran.flickrsearch
+package com.attyran.flickrsearch.di
 
+import com.attyran.flickrsearch.network.PhotoSearchClient
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton

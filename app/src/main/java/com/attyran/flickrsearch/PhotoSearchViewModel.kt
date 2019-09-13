@@ -2,6 +2,8 @@ package com.attyran.flickrsearch
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.attyran.flickrsearch.network.PhotoSearchClient
+import com.attyran.flickrsearch.network.PhotoSearchResponse
 import javax.inject.Inject
 
 class PhotoSearchViewModel
