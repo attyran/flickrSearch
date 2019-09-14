@@ -51,34 +51,21 @@ class PhotoSearchViewModelTest {
     @Test
     fun testSearchReturned_whenRequested() {
         // mock data
-        val mockPhotos = ArrayList<Photo>()
-        val mockResponse = PhotoSearchResponse(
-            Result(mockPhotos)
-        )
-        mockPhotos.add(
-            Photo(
-                "1234",
-                "mock_owner",
-                "mock_secret",
-                "mock_server",
-                "mock_farm",
-                "mock_title",
-                "mock_ispublic",
-                "mock_isfriend",
-                "mock_isFamily"
-            )
-        )
+        val mockResponse = createMockPhotoSearchResponse(mockPhotos)
 
         Mockito.`when`(backendClient.search(tag)).
             thenReturn(Single.just(mockResponse))
         viewModel.photoSearchResponse.observeForever(tempObserver)
         viewModel.search(tag)
 
-        assert(viewModel.photoSearchResponse.value!!.photos.photo.isNotEmpty())
+        for (i in viewModel.photoSearchResponse.value!!.photos.photo.indices) {
+            assert(viewModel.photoSearchResponse.value!!.photos.photo[i] == mockResponse.photos.photo[i])
+        }
     }
 
     @Test
     fun testSearchReturned_empty() {
+        val mockResponse = createMockPhotoSearchResponse()
         Mockito.`when`(backendClient.search(tag)).
             thenReturn(Single.just(
                 PhotoSearchResponse(
@@ -90,6 +77,6 @@ class PhotoSearchViewModelTest {
         viewModel.photoSearchResponse.observeForever(tempObserver)
         viewModel.search(tag)
 
-        assert(viewModel.photoSearchResponse.value!!.photos.photo.isEmpty())
+        assert(viewModel.photoSearchResponse.value!!.photos.photo.size == mockResponse.photos.photo.size)
     }
 }
