@@ -1,6 +1,6 @@
 package com.attyran.flickrsearch.di
 
-import com.attyran.flickrsearch.network.PhotoSearchClient
+import com.attyran.flickrsearch.network.BackendClient
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -10,7 +10,7 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideViewModelFactory(photoSearchClient: PhotoSearchClient): PhotoSearchViewModelFactory {
-        return PhotoSearchViewModelFactory(photoSearchClient)
+    fun provideViewModelFactory(backendClient: BackendClient): PhotoSearchViewModelFactory {
+        return PhotoSearchViewModelFactory(backendClient)
     }
 }

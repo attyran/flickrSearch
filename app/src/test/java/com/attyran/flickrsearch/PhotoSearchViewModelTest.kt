@@ -23,7 +23,6 @@ class PhotoSearchViewModelTest {
     lateinit var tempObserver: Observer<PhotoSearchResponse>
 
     private lateinit var viewModel: PhotoSearchViewModel
-    private lateinit var photoSearchClient: PhotoSearchClient
 
     // A JUnit Test Rule that swaps the background executor used by
     // the Architecture Components with a different one which executes each task synchronously.
@@ -44,8 +43,7 @@ class PhotoSearchViewModelTest {
     @Before
     fun setup() {
         MockitoAnnotations.initMocks(this)
-        photoSearchClient = PhotoSearchClient(backendClient)
-        viewModel = PhotoSearchViewModel(photoSearchClient)
+        viewModel = PhotoSearchViewModel(backendClient)
     }
 
     @Test
