@@ -7,9 +7,11 @@ import androidx.recyclerview.widget.GridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.lifecycle.Observer
 import com.attyran.flickrsearch.di.PhotoSearchApplication
 import com.attyran.flickrsearch.di.PhotoSearchViewModelFactory
+import com.attyran.flickrsearch.network.Photo
 import com.jakewharton.rxbinding2.widget.RxTextView
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -72,6 +74,10 @@ class PhotoSearchFragment : androidx.fragment.app.Fragment() {
 
     private fun setupRecyclerView() {
         search_results_rv.layoutManager = GridLayoutManager(context, 2)
-        search_results_rv.adapter = FlickrAdapter()
+        search_results_rv.adapter = FlickrAdapter(object : FlickrAdapter.FlickrAdapterViewHolder.Interactor {
+            override fun onItemSelected(photo: Photo, image: ImageView) {
+                // todo
+            }
+        })
     }
 }

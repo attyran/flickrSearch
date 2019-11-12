@@ -13,28 +13,36 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import kotlinx.android.synthetic.main.flickr_rv_item.view.*
 
-class FlickrAdapter : ListAdapter<Photo, FlickrAdapter.FlickrAdapterViewHolder>(FlickrItemCallback()) {
+class FlickrAdapter(private val interactor: FlickrAdapterViewHolder.Interactor?) : ListAdapter<Photo, FlickrAdapter.FlickrAdapterViewHolder>(FlickrItemCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FlickrAdapterViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val view = inflater.inflate(R.layout.flickr_rv_item, parent, false)
-        return FlickrAdapterViewHolder(view)
+        return FlickrAdapterViewHolder(view, interactor)
     }
 
     override fun onBindViewHolder(holder: FlickrAdapterViewHolder, position: Int) {
         val photo = getItem(position)
-        val imageUrl = String.format("https://farm%s.staticflickr.com/%s/%s_%s.jpg",
-            photo.farm, photo.server, photo.id, photo.secret)
-        Glide.with(holder.mPhoto.context)
-                .load(imageUrl)
-                .apply(RequestOptions().centerInside().transform(RoundedCorners(25)))
-                .into(holder.mPhoto)
+        holder.bind(getItem(position))
     }
 
-    class FlickrAdapterViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
-        internal val mPhoto: ImageView = itemView.item_image
-        override fun onClick(v: View?) {
+    class FlickrAdapterViewHolder
+    constructor(itemView: View, private val interactor: Interactor?) : RecyclerView.ViewHolder(itemView) {
+        fun bind(photo: Photo) {
+            val imageUrl = String.format("https://farm%s.staticflickr.com/%s/%s_%s.jpg",
+                photo.farm, photo.server, photo.id, photo.secret)
+            Glide.with(itemView.item_image)
+                .load(imageUrl)
+                .apply(RequestOptions().centerInside().transform(RoundedCorners(25)))
+                .into(itemView.item_image)
 
+            itemView.setOnClickListener {
+                interactor?.onItemSelected(photo, itemView.item_image)
+            }
+        }
+
+        interface Interactor {
+            fun onItemSelected(photo: Photo, image: ImageView)
         }
     }
 
