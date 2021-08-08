@@ -23,7 +23,7 @@ class FlickrAdapter(private val interactor: FlickrAdapterViewHolder.Interactor?)
 
     override fun onBindViewHolder(holder: FlickrAdapterViewHolder, position: Int) {
         val photo = getItem(position)
-        holder.bind(getItem(position))
+        holder.bind(photo)
     }
 
     class FlickrAdapterViewHolder
