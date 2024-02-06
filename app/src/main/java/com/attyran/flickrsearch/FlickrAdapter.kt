@@ -7,18 +7,22 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
+import com.attyran.flickrsearch.databinding.FlickrRvItemBinding
 import com.attyran.flickrsearch.network.Photo
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
-import kotlinx.android.synthetic.main.flickr_rv_item.view.*
 
 class FlickrAdapter(private val interactor: FlickrAdapterViewHolder.Interactor?) : ListAdapter<Photo, FlickrAdapter.FlickrAdapterViewHolder>(FlickrItemCallback()) {
 
+    private var _binding: FlickrRvItemBinding? = null
+    private val binding get() = _binding!!
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FlickrAdapterViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val view = inflater.inflate(R.layout.flickr_rv_item, parent, false)
-        return FlickrAdapterViewHolder(view, interactor)
+        _binding = FlickrRvItemBinding.inflate(inflater, parent, false)
+        val view = binding.root
+        return FlickrAdapterViewHolder(binding, view, interactor)
     }
 
     override fun onBindViewHolder(holder: FlickrAdapterViewHolder, position: Int) {
@@ -26,18 +30,17 @@ class FlickrAdapter(private val interactor: FlickrAdapterViewHolder.Interactor?)
         holder.bind(photo)
     }
 
-    class FlickrAdapterViewHolder
-    constructor(itemView: View, private val interactor: Interactor?) : RecyclerView.ViewHolder(itemView) {
+    class FlickrAdapterViewHolder(private val binding: FlickrRvItemBinding, itemView: View, private val interactor: Interactor?) : RecyclerView.ViewHolder(itemView) {
         fun bind(photo: Photo) {
             val imageUrl = String.format("https://farm%s.staticflickr.com/%s/%s_%s.jpg",
                 photo.farm, photo.server, photo.id, photo.secret)
-            Glide.with(itemView.item_image)
+            Glide.with(binding.itemImage)
                 .load(imageUrl)
                 .apply(RequestOptions().centerInside().transform(RoundedCorners(25)))
-                .into(itemView.item_image)
+                .into(binding.itemImage)
 
             itemView.setOnClickListener {
-                interactor?.onItemSelected(photo, itemView.item_image)
+                interactor?.onItemSelected(photo, binding.itemImage)
             }
         }
 
