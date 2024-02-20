@@ -1,6 +1,5 @@
 package com.attyran.flickrsearch
 
-import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.view.KeyEvent
 import androidx.recyclerview.widget.GridLayoutManager
@@ -8,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.attyran.flickrsearch.databinding.FragmentPhotoSearchBinding
 import com.attyran.flickrsearch.di.PhotoSearchApplication
 import com.attyran.flickrsearch.di.PhotoSearchViewModelFactory
@@ -32,11 +31,11 @@ class PhotoSearchFragment : androidx.fragment.app.Fragment() {
     private val binding get() = _binding!!
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         _binding = FragmentPhotoSearchBinding.inflate(inflater, container, false)
         val view = binding.root
         PhotoSearchApplication.appComponent.inject(this)
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(PhotoSearchViewModel::class.java)
+        viewModel = ViewModelProvider(this, viewModelFactory)[PhotoSearchViewModel::class.java]
 
         return view
     }
@@ -45,12 +44,12 @@ class PhotoSearchFragment : androidx.fragment.app.Fragment() {
         super.onStart()
 
         setupRecyclerView()
-        viewModel.observePhotos().observe(this, Observer {
+        viewModel.observePhotos().observe(this) {
             it?.let {
                 val adapter = binding.searchResultsRv.adapter as FlickrAdapter
                 adapter.submitList(it.photos.photo)
             }
-        })
+        }
 
         val itemInputNameObservable = RxTextView.textChanges(binding.tagField)
                 .map { inputText: CharSequence -> inputText.isEmpty() }
