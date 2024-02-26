@@ -7,18 +7,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.attyran.flickrsearch.databinding.FragmentPhotoSearchBinding
 import com.attyran.flickrsearch.di.PhotoSearchApplication
 import com.attyran.flickrsearch.di.PhotoSearchViewModelFactory
 import com.attyran.flickrsearch.network.Photo
-import com.jakewharton.rxbinding2.widget.RxTextView
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import javax.inject.Inject
+import androidx.lifecycle.lifecycleScope
+import com.jakewharton.rxbinding2.widget.RxTextView
+import kotlinx.coroutines.launch
 
-class PhotoSearchFragment : androidx.fragment.app.Fragment() {
+class PhotoSearchFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: PhotoSearchViewModelFactory
@@ -40,31 +43,45 @@ class PhotoSearchFragment : androidx.fragment.app.Fragment() {
         return view
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+    }
+
     override fun onStart() {
         super.onStart()
 
         setupRecyclerView()
-        viewModel.observePhotos().observe(this) {
-            it?.let {
+        observePhotoSearchResponse()
+        setupSearchField()
+        setupSearchButton()
+    }
+
+    private fun observePhotoSearchResponse() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.photoState.collect { response ->
                 val adapter = binding.searchResultsRv.adapter as FlickrAdapter
-                adapter.submitList(it.photos.photo)
+                adapter.submitList(response.photos.photo)
             }
         }
+    }
 
+    private fun setupSearchField() {
         val itemInputNameObservable = RxTextView.textChanges(binding.tagField)
-                .map { inputText: CharSequence -> inputText.isEmpty() }
-                .distinctUntilChanged()
+            .map { inputText: CharSequence -> inputText.isEmpty() }
+            .distinctUntilChanged()
         compositeDisposable.add(setupTextInputObserver(itemInputNameObservable))
-        binding.tagField.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
+        binding.tagField.setOnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
                 binding.tagField.hideKeyboard()
                 if (!binding.tagField.text.isNullOrEmpty())
                     viewModel.search(binding.tagField.text.toString())
-                return@OnKeyListener true
+                return@setOnKeyListener true
             }
             false
-        })
+        }
+    }
 
+    private fun setupSearchButton() {
         binding.searchButton.setOnClickListener {
             binding.tagField.hideKeyboard()
             viewModel.search(binding.tagField.text.toString())
