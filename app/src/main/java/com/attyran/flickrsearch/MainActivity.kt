@@ -1,20 +1,24 @@
 package com.attyran.flickrsearch
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
+
+    private val viewModel: FlickrViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        loadFragment(PhotoSearchFragment())
-    }
-
-    private fun loadFragment(fragment: androidx.fragment.app.Fragment) {
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction .replace(R.id.main_container, fragment)
-        transaction.commit()
+        setContent {
+            PhotoSearchScreen(viewModel = viewModel) {
+                lifecycleScope.launch {
+                    viewModel.search(it)
+                }
+            }
+        }
     }
 }
