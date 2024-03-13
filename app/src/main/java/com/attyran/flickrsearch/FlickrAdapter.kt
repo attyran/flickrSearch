@@ -9,9 +9,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.attyran.flickrsearch.databinding.FlickrRvItemBinding
 import com.attyran.flickrsearch.network.Photo
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import com.bumptech.glide.request.RequestOptions
+import coil.load
+import coil.transform.RoundedCornersTransformation
 
 class FlickrAdapter(private val interactor: FlickrAdapterViewHolder.Interactor?) : ListAdapter<Photo, FlickrAdapter.FlickrAdapterViewHolder>(FlickrItemCallback()) {
 
@@ -34,11 +33,10 @@ class FlickrAdapter(private val interactor: FlickrAdapterViewHolder.Interactor?)
         fun bind(photo: Photo) {
             val imageUrl = String.format("https://farm%s.staticflickr.com/%s/%s_%s.jpg",
                 photo.farm, photo.server, photo.id, photo.secret)
-            Glide.with(binding.itemImage)
-                .load(imageUrl)
-                .apply(RequestOptions().centerInside().transform(RoundedCorners(25)))
-                .into(binding.itemImage)
-
+            binding.itemImage.load(imageUrl) {
+                crossfade(true)
+                transformations(RoundedCornersTransformation(25f))
+            }
             itemView.setOnClickListener {
                 interactor?.onItemSelected(photo, binding.itemImage)
             }
