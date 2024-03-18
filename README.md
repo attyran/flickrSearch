@@ -4,13 +4,6 @@ A basic Android app that searches Flickr and display images matching the search 
 
 ## Components
 ### Kotlin
-### MVVM Architecture
-### Flow
+### Jetpack Compose
 ### Kotlin Coroutines
-### Dagger
-### Glide
-### RxJava
-### AndroidX
-### Unit testing via Mockito
-
-![](sample.gif)
+### Coil
