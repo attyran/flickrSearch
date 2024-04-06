@@ -61,10 +61,17 @@ fun PhotoSearchScreen(viewModel: FlickrViewModel, onSearchClicked: (String) -> U
         ) {
             Text(text = "Search")
         }
-        PhotoGrid(images = photoState.value.photos.photo.map { photo ->
-            String.format("https://farm%s.staticflickr.com/%s/%s_%s.jpg",
-                photo.farm, photo.server, photo.id, photo.secret)
-        })
+        when (photoState.value) {
+            is FlickrViewModel.UIState.Success -> {
+                PhotoGrid(images = (photoState.value as FlickrViewModel.UIState.Success).photos.map { photo ->
+                    String.format("https://farm%s.staticflickr.com/%s/%s_%s.jpg",
+                        photo.farm, photo.server, photo.id, photo.secret)
+                })
+            }
+            is FlickrViewModel.UIState.Error -> {
+                Text(text = (photoState.value as FlickrViewModel.UIState.Error).message)
+            }
+        }
     }
 }
 

@@ -2,25 +2,32 @@ package com.attyran.flickrsearch
 
 import androidx.lifecycle.ViewModel
 import com.attyran.flickrsearch.network.BackendService
-import com.attyran.flickrsearch.network.PhotoSearchResponse
-import com.attyran.flickrsearch.network.Result
+import com.attyran.flickrsearch.network.Photo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class FlickrViewModel : ViewModel() {
 
-    private val _photoState: MutableStateFlow<PhotoSearchResponse> =
-        MutableStateFlow(PhotoSearchResponse(Result(ArrayList())))
-    val photoState: StateFlow<PhotoSearchResponse> = _photoState
-
     private val backendService = BackendService()
+    private val _photoState = MutableStateFlow<UIState>(UIState.Error(""))
+    val photoState: StateFlow<UIState> = _photoState
 
     suspend fun search(tag: String) {
-        val response = backendService.getPhotos(tag)
-        return if (response.photos.photo.isNotEmpty()) {
-            _photoState.value = response
-        } else {
-            _photoState.value = PhotoSearchResponse(Result(ArrayList()))
+        try {
+            val result = backendService.getPhotos(tag).photos
+            if (result == null) {
+                _photoState.value = UIState.Error("No photos found")
+                return
+            }
+            _photoState.value = UIState.Success(result.photo)
+        } catch (e: Exception) {
+            _photoState.value = UIState.Error(e.message ?: "An error occurred")
         }
+    }
+
+
+    sealed class UIState {
+        data class Success(val photos: List<Photo>) : UIState()
+        data class Error(val message: String) : UIState()
     }
 }
