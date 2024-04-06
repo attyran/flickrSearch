@@ -6,9 +6,8 @@ import com.attyran.flickrsearch.network.Photo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class FlickrViewModel : ViewModel() {
+class FlickrViewModel(private val backendService: BackendService) : ViewModel() {
 
-    private val backendService = BackendService()
     private val _photoState = MutableStateFlow<UIState>(UIState.Error(""))
     val photoState: StateFlow<UIState> = _photoState
 
