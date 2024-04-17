@@ -19,20 +19,23 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import coil.size.Scale
 import androidx.compose.ui.text.input.ImeAction
+import com.attyran.flickrsearch.network.BackendService
 
 @Composable
-fun PhotoSearchScreen(viewModel: FlickrViewModel, onSearchClicked: (String) -> Unit) {
+fun FlickApp() {
     val searchQuery = rememberSaveable { mutableStateOf("") }
+    val viewModel = remember { FlickrViewModel(BackendService()) }
     val photoState = viewModel.photoState.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -46,13 +49,13 @@ fun PhotoSearchScreen(viewModel: FlickrViewModel, onSearchClicked: (String) -> U
             label = { Text(text = "Search") },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = {
-                onSearchClicked(searchQuery.value)
+                viewModel.searchTag(searchQuery.value)
                 keyboardController?.hide()
             })
         )
         Button(
             onClick = {
-                onSearchClicked(searchQuery.value)
+                viewModel.searchTag(searchQuery.value)
                 keyboardController?.hide()
             },
             modifier = Modifier
@@ -61,6 +64,7 @@ fun PhotoSearchScreen(viewModel: FlickrViewModel, onSearchClicked: (String) -> U
         ) {
             Text(text = "Search")
         }
+        // TODO is this efficient?
         when (photoState.value) {
             is FlickrViewModel.UIState.Success -> {
                 PhotoGrid(images = (photoState.value as FlickrViewModel.UIState.Success).photos.map { photo ->
@@ -95,11 +99,13 @@ fun PhotoGrid(images: List<String>) {
 
 @Composable
 fun ImageListItem(imageUrl: String) {
-    val painter = rememberAsyncImagePainter(
-        ImageRequest.Builder(LocalContext.current).data(data = imageUrl).apply(block = fun ImageRequest.Builder.() {
-            scale(Scale.FILL)
-        }).build()
-    )
+    val context = LocalContext.current
+    val size = with(LocalDensity.current) { 180.dp.roundToPx() }
+    val request = ImageRequest.Builder(context)
+        .data(imageUrl)
+        .size(size)
+        .build()
+    val painter = rememberAsyncImagePainter(request)
 
     Image(
         painter = painter,
