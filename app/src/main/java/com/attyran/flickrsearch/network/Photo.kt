@@ -1,14 +1,16 @@
 package com.attyran.flickrsearch.network
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class Photo(
-    @SerializedName("id") val id: String,
-    @SerializedName("owner") val owner: String,
-    @SerializedName("secret") val secret: String,
-    @SerializedName("server") val server: String,
-    @SerializedName("farm") val farm: String,
-    @SerializedName("title") val title: String,
-    @SerializedName("ispublic") val isPublic: String,
-    @SerializedName("isfriend") val isFriend: String,
-    @SerializedName("isfamily") val isFamily: String
+    @Json(name = "id") val id: String,
+    @Json(name = "owner") val owner: String,
+    @Json(name = "secret") val secret: String,
+    @Json(name = "server") val server: String,
+    @Json(name = "farm") val farm: String,
+    @Json(name = "title") val title: String,
+    @Json(name = "ispublic") val isPublic: String,
+    @Json(name = "isfriend") val isFriend: String,
+    @Json(name = "isfamily") val isFamily: String
 )

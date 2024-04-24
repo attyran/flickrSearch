@@ -1,11 +1,14 @@
 package com.attyran.flickrsearch.network
 
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.JsonClass
+import com.squareup.moshi.Json
 
+@JsonClass(generateAdapter = true)
 data class PhotoSearchResponse(
-    @SerializedName("photos") val photos: Result?
+    @Json(name = "photos") val photos: Result?
 )
 
+@JsonClass(generateAdapter = true)
 data class Result(
-    @SerializedName("photo") val photo: List<Photo> = emptyList()
+    @Json(name = "photo") val photo: List<Photo> = emptyList()
 )
