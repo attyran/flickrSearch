@@ -31,12 +31,12 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import androidx.compose.ui.text.input.ImeAction
-import com.attyran.flickrsearch.network.BackendClient
+import com.attyran.flickrsearch.network.BackendService
 
 @Composable
 fun FlickApp(onPhotoClicked: (String) -> Unit) {
     val searchQuery = rememberSaveable { mutableStateOf("") }
-    val viewModel = remember { FlickrViewModel(BackendClient()) }
+    val viewModel = remember { FlickrViewModel(BackendService()) }
     val photoState = viewModel.photoState.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
     val imagesState = rememberSaveable { mutableStateOf(emptyList<String>()) }
