@@ -2,13 +2,13 @@ package com.attyran.flickrsearch
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.attyran.flickrsearch.network.BackendService
+import com.attyran.flickrsearch.network.BackendClient
 import com.attyran.flickrsearch.network.Photo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class FlickrViewModel(private val backendService: BackendService) : ViewModel() {
+class FlickrViewModel(private val backendClient: BackendClient) : ViewModel() {
 
     private val _photoState = MutableStateFlow<UIState>(UIState.Error(""))
     val photoState: StateFlow<UIState> = _photoState
@@ -16,7 +16,7 @@ class FlickrViewModel(private val backendService: BackendService) : ViewModel() 
     fun searchTag(tag: String) {
         viewModelScope.launch {
             try {
-                val result = backendService.getPhotos(tag).photos
+                val result = backendClient.getPhotos(tag).photos
                 if (result == null) {
                     _photoState.value = UIState.Error("No photos found")
                     return@launch
