@@ -94,8 +94,6 @@ fun FlickApp(onPhotoClicked: (String) -> Unit) {
 
 @Composable
 fun PhotoGrid(images: List<String>, onPhotoClicked: (String) -> Unit) {
-//    val imagesState = rememberSaveable { mutableStateOf(images.toTypedArray()) }
-
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {

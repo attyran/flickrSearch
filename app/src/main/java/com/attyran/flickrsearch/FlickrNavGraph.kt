@@ -37,9 +37,8 @@ fun FlickrNavGraph(
                 navArgument(PHOTO_URL_ARG) { type = NavType.StringType; nullable = false }
             )
         ) { entry ->
-            val url = entry.arguments?.getString(PHOTO_URL_ARG) ?: ""
             DetailsScreen(
-                url
+                entry.arguments?.getString(PHOTO_URL_ARG)!!
             )
         }
     }
