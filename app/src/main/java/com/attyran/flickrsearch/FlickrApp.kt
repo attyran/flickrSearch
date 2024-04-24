@@ -16,8 +16,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,7 +42,7 @@ fun FlickApp(onPhotoClicked: (String) -> Unit) {
     val imagesState = rememberSaveable { mutableStateOf(emptyList<String>()) }
 
     Column {
-        TextField(
+        OutlinedTextField(
             value = searchQuery.value,
             onValueChange = { searchQuery.value = it },
             modifier = Modifier
