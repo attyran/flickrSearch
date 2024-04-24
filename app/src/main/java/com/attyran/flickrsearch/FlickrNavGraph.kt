@@ -1,17 +1,24 @@
 package com.attyran.flickrsearch
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.attyran.flickrsearch.FlickrDestinationsArgs.PHOTO_URL_ARG
 
 @Composable
 fun FlickrNavGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startDestination: String = FlickrDestinations.SEARCH_ROUTE,
+    navActions: FlickrNavigationActions = remember(navController) {
+        FlickrNavigationActions(navController)
+    }
 ) {
     NavHost(
         navController = navController,
@@ -19,11 +26,21 @@ fun FlickrNavGraph(
         modifier = modifier
     ) {
         composable(FlickrDestinations.SEARCH_ROUTE) {
-            FlickApp()
+            FlickApp(onPhotoClicked = { photoURL ->
+                navActions.navigateToDetails(photoURL)
+            })
         }
         // TODO: update so we don't have to pass null
-        composable(FlickrDestinations.DETAILS_ROUTE) {
-            DetailsScreen(null)
+        composable(
+            FlickrDestinations.DETAILS_ROUTE,
+            arguments = listOf(
+                navArgument(PHOTO_URL_ARG) { type = NavType.StringType; nullable = false }
+            )
+        ) { entry ->
+            val url = entry.arguments?.getString(PHOTO_URL_ARG) ?: ""
+            DetailsScreen(
+                url
+            )
         }
     }
 }

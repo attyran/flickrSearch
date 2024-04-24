@@ -1,6 +1,7 @@
 package com.attyran.flickrsearch
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,11 +34,12 @@ import androidx.compose.ui.text.input.ImeAction
 import com.attyran.flickrsearch.network.BackendService
 
 @Composable
-fun FlickApp() {
+fun FlickApp(onPhotoClicked: (String) -> Unit) {
     val searchQuery = rememberSaveable { mutableStateOf("") }
     val viewModel = remember { FlickrViewModel(BackendService()) }
     val photoState = viewModel.photoState.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
+    val imagesState = rememberSaveable { mutableStateOf(emptyList<String>()) }
 
     Column {
         TextField(
@@ -55,6 +57,7 @@ fun FlickApp() {
         )
         Button(
             onClick = {
+                imagesState.value = emptyList()
                 viewModel.searchTag(searchQuery.value)
                 keyboardController?.hide()
             },
@@ -65,22 +68,34 @@ fun FlickApp() {
             Text(text = "Search")
         }
         // TODO is this efficient?
-        when (photoState.value) {
-            is FlickrViewModel.UIState.Success -> {
-                PhotoGrid(images = (photoState.value as FlickrViewModel.UIState.Success).photos.map { photo ->
-                    String.format("https://farm%s.staticflickr.com/%s/%s_%s.jpg",
-                        photo.farm, photo.server, photo.id, photo.secret)
-                })
-            }
-            is FlickrViewModel.UIState.Error -> {
-                Text(text = (photoState.value as FlickrViewModel.UIState.Error).message)
+        if (imagesState.value.isNotEmpty()) {
+            PhotoGrid(imagesState.value, onPhotoClicked)
+        }
+        else {
+            when (photoState.value) {
+                is FlickrViewModel.UIState.Success -> {
+                    imagesState.value =
+                        (photoState.value as FlickrViewModel.UIState.Success).photos.map { photo ->
+                            String.format(
+                                "https://farm%s.staticflickr.com/%s/%s_%s.jpg",
+                                photo.farm, photo.server, photo.id, photo.secret
+                            )
+                        }
+                    PhotoGrid(imagesState.value, onPhotoClicked)
+                }
+
+                is FlickrViewModel.UIState.Error -> {
+                    Text(text = (photoState.value as FlickrViewModel.UIState.Error).message)
+                }
             }
         }
     }
 }
 
 @Composable
-fun PhotoGrid(images: List<String>) {
+fun PhotoGrid(images: List<String>, onPhotoClicked: (String) -> Unit) {
+//    val imagesState = rememberSaveable { mutableStateOf(images.toTypedArray()) }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -90,7 +105,7 @@ fun PhotoGrid(images: List<String>) {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 for (imageUrl in imageRow) {
-                    ImageListItem(imageUrl = imageUrl)
+                    ImageListItem(imageUrl = imageUrl, onPhotoClicked)
                 }
             }
         }
@@ -98,7 +113,7 @@ fun PhotoGrid(images: List<String>) {
 }
 
 @Composable
-fun ImageListItem(imageUrl: String) {
+fun ImageListItem(imageUrl: String, onPhotoClicked: (String) -> Unit) {
     val context = LocalContext.current
     val size = with(LocalDensity.current) { 180.dp.roundToPx() }
     val request = ImageRequest.Builder(context)
@@ -114,5 +129,6 @@ fun ImageListItem(imageUrl: String) {
             .padding(4.dp)
             .size(180.dp)
             .clip(MaterialTheme.shapes.medium)
+            .clickable { onPhotoClicked(imageUrl) }
     )
 }
