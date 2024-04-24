@@ -41,11 +41,11 @@ ext {
 }
 
 dependencies {
-    def composeBom = platform('androidx.compose:compose-bom:2024.04.00')
+    def composeBom = platform('androidx.compose:compose-bom:2024.04.01')
     implementation(composeBom)
     androidTestImplementation(composeBom)
 
-    implementation 'androidx.activity:activity-compose:1.8.2'
+    implementation 'androidx.activity:activity-compose:1.9.0'
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.7.0"
     implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
@@ -72,9 +72,7 @@ dependencies {
 
     // Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    def moshiVersion = "1.15.1"
-    implementation("com.squareup.moshi:moshi:$moshiVersion")
-    kapt("com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion")
+    implementation("com.squareup.moshi:moshi:1.15.1")
     implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
 
     // ViewModel and LiveData
