@@ -1,5 +1,11 @@
 package com.attyran.flickrsearch.network
 
-data class PhotoSearchResponse(val photos: Result?)
+import com.google.gson.annotations.SerializedName
 
-data class Result(val photo: List<Photo> = emptyList())
+data class PhotoSearchResponse(
+    @SerializedName("photos") val photos: Result?
+)
+
+data class Result(
+    @SerializedName("photo") val photo: List<Photo> = emptyList()
+)
