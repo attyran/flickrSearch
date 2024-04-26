@@ -30,12 +30,14 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import androidx.compose.ui.text.input.ImeAction
-import com.attyran.flickrsearch.network.BackendService
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
-fun FlickApp(onPhotoClicked: (String) -> Unit) {
+fun FlickApp(
+    onPhotoClicked: (String) -> Unit,
+    viewModel : FlickrViewModel = hiltViewModel()
+) {
     val searchQuery = rememberSaveable { mutableStateOf("") }
-    val viewModel = FlickrViewModel(BackendService())
     val photoState = viewModel.photoState.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
     val imagesState = rememberSaveable { mutableStateOf(emptyList<String>()) }
@@ -66,26 +68,21 @@ fun FlickApp(onPhotoClicked: (String) -> Unit) {
         ) {
             Text(text = "Search")
         }
-        // TODO is this efficient?
-        if (imagesState.value.isNotEmpty()) {
-            PhotoGrid(imagesState.value, onPhotoClicked)
-        }
-        else {
-            when (photoState.value) {
-                is FlickrViewModel.UIState.Success -> {
-                    imagesState.value =
-                        (photoState.value as FlickrViewModel.UIState.Success).photos.map { photo ->
-                            String.format(
-                                "https://farm%s.staticflickr.com/%s/%s_%s.jpg",
-                                photo.farm, photo.server, photo.id, photo.secret
-                            )
-                        }
-                    PhotoGrid(imagesState.value, onPhotoClicked)
-                }
+        when (photoState.value) {
+            is FlickrViewModel.UIState.Success -> {
+                imagesState.value = emptyList()
+                imagesState.value =
+                    (photoState.value as FlickrViewModel.UIState.Success).photos.map { photo ->
+                        String.format(
+                            "https://farm%s.staticflickr.com/%s/%s_%s.jpg",
+                            photo.farm, photo.server, photo.id, photo.secret
+                        )
+                    }
+                PhotoGrid(imagesState.value, onPhotoClicked)
+            }
 
-                is FlickrViewModel.UIState.Error -> {
-                    Text(text = (photoState.value as FlickrViewModel.UIState.Error).message)
-                }
+            is FlickrViewModel.UIState.Error -> {
+                Text(text = (photoState.value as FlickrViewModel.UIState.Error).message)
             }
         }
     }

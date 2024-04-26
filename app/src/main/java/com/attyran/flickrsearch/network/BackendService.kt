@@ -1,19 +1,36 @@
 package com.attyran.flickrsearch.network
 
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Query
 
-class BackendService {
+interface BackendService {
 
-    private val apiService: BackendClient by lazy {
-        val apiService = Retrofit.Builder()
-            .baseUrl(BackendClient.BASE_URL)
-            .addConverterFactory(MoshiConverterFactory.create())
-            .build()
-        apiService.create(BackendClient::class.java)
-    }
+    @GET("rest/?&method=flickr.photos.search&api_key=$API_KEY&format=json&nojsoncallback=1")
+    suspend fun search(@Query("tags") tag: String): PhotoResponse
 
-    suspend fun getPhotos(tag: String): PhotoSearchResponse {
-        return apiService.search(tag)
+    companion object {
+        const val API_KEY = "1508443e49213ff84d566777dc211f2a"
+        const val BASE_URL = "https://api.flickr.com/services/"
+
+        fun create(): BackendService {
+            val logger = HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC }
+
+            val client = OkHttpClient.Builder()
+                .addInterceptor(logger)
+                .build()
+
+            return Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .client(client)
+//                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(MoshiConverterFactory.create())
+                .build()
+                .create(BackendService::class.java)
+        }
     }
 }
