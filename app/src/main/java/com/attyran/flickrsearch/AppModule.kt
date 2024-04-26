@@ -8,22 +8,15 @@ import com.attyran.flickrsearch.network.BackendService
 import com.attyran.flickrsearch.network.BackendClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
+    @Singleton
     @Provides
-    fun provideBackendClient(): BackendClient {
-        return Retrofit.Builder()
-            .baseUrl(BackendClient.BASE_URL)
-            .addConverterFactory(MoshiConverterFactory.create())
-            .build()
-            .create(BackendClient::class.java)
-    }
-
-    @Provides
-    fun provideBackendService(backendClient: BackendClient): BackendService {
-        return BackendService(backendClient)
+    fun provideTapToSnapService(): BackendService {
+        return BackendService.create()
     }
 }
