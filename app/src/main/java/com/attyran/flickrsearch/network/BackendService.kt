@@ -3,7 +3,6 @@ package com.attyran.flickrsearch.network
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -27,7 +26,6 @@ interface BackendService {
             return Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .client(client)
-//                .addConverterFactory(GsonConverterFactory.create())
                 .addConverterFactory(MoshiConverterFactory.create())
                 .build()
                 .create(BackendService::class.java)
