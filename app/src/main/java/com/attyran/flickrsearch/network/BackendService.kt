@@ -13,8 +13,8 @@ interface BackendService {
     suspend fun search(@Query("tags") tag: String): PhotoResponse
 
     companion object {
-        const val API_KEY = "1508443e49213ff84d566777dc211f2a"
-        const val BASE_URL = "https://api.flickr.com/services/"
+        private const val API_KEY = "1508443e49213ff84d566777dc211f2a"
+        private const val BASE_URL = "https://api.flickr.com/services/"
 
         fun create(): BackendService {
             val logger = HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC }

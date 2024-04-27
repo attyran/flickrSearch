@@ -30,7 +30,6 @@ fun FlickrNavGraph(
                 navActions.navigateToDetails(photoURL)
             })
         }
-        // TODO: update so we don't have to pass null
         composable(
             FlickrDestinations.DETAILS_ROUTE,
             arguments = listOf(
