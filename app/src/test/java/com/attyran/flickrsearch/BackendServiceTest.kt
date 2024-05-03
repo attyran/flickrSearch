@@ -1,4 +1,4 @@
-package com.attyran
+package com.attyran.flickrsearch
 
 import com.attyran.flickrsearch.network.BackendService
 import kotlinx.coroutines.runBlocking
