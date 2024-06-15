@@ -1,5 +1,6 @@
 package com.attyran.flickrsearch.network
 
+import com.attyran.flickrsearch.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -9,11 +10,13 @@ import retrofit2.http.Query
 
 interface BackendService {
 
-    @GET("rest/?&method=flickr.photos.search&api_key=$API_KEY&format=json&nojsoncallback=1")
+    @GET("rest/?&method=flickr.photos.search&api_key=${BuildConfig.FLICKR_API_KEY}&format=json&nojsoncallback=1")
     suspend fun search(@Query("tags") tag: String): PhotoResponse
 
+    @GET("rest/?&method=flickr.favorites.getList&api_key=${BuildConfig.FLICKR_API_KEY}&format=json&nojsoncallback=1")
+    suspend fun getFavorites(@Query("user_id") userID: String? = null): PhotoResponse
+
     companion object {
-        private const val API_KEY = "1508443e49213ff84d566777dc211f2a"
         private const val BASE_URL = "https://api.flickr.com/services/"
 
         fun create(): BackendService {

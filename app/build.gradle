@@ -13,6 +13,10 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        def localProperties = new Properties()
+        rootProject.file('flickr.properties').withInputStream { localProperties.load(it) }
+        def flickrApiKey = localProperties['flickrApiKey']
+        buildConfigField 'String', 'FLICKR_API_KEY', "\"${flickrApiKey}\""
     }
     buildTypes {
         release {
