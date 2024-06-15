@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FlickrViewModel @Inject constructor(
-    private val backendService: BackendService,
+    private val backendService: BackendService
 ) : ViewModel() {
 
     private val _photoState = MutableStateFlow<UIState>(UIState.Error(""))

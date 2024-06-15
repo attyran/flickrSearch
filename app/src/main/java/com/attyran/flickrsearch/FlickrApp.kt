@@ -33,9 +33,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
-fun FlickApp(
+fun FlickrApp(
     onPhotoClicked: (String) -> Unit,
-    viewModel : FlickrViewModel = hiltViewModel()
+    viewModel: FlickrViewModel = hiltViewModel()
 ) {
     val searchQuery = rememberSaveable { mutableStateOf("") }
     val photoState = viewModel.photoState.collectAsState()
@@ -80,7 +80,6 @@ fun FlickApp(
                     }
                 PhotoGrid(imagesState.value, onPhotoClicked)
             }
-
             is FlickrViewModel.UIState.Error -> {
                 Text(text = (photoState.value as FlickrViewModel.UIState.Error).message)
             }

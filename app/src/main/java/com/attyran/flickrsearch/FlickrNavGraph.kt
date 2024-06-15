@@ -26,7 +26,7 @@ fun FlickrNavGraph(
         modifier = modifier
     ) {
         composable(FlickrDestinations.SEARCH_ROUTE) {
-            FlickApp(onPhotoClicked = { photoURL ->
+            FlickrApp(onPhotoClicked = { photoURL ->
                 navActions.navigateToDetails(photoURL)
             })
         }
