@@ -7,3 +7,4 @@ A basic Android app that searches Flickr and display images matching the search 
 ### Jetpack Compose
 ### Kotlin Coroutines
 ### Coil
+### OAuth 1.0 (Flickr authentication)
