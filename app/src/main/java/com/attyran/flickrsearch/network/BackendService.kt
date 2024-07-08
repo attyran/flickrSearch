@@ -13,9 +13,6 @@ interface BackendService {
     @GET("rest/?&method=flickr.photos.search&api_key=${BuildConfig.FLICKR_API_KEY}&format=json&nojsoncallback=1")
     suspend fun search(@Query("tags") tag: String): PhotoResponse
 
-    @GET("rest/?&method=flickr.favorites.getList&api_key=${BuildConfig.FLICKR_API_KEY}&format=json&nojsoncallback=1")
-    suspend fun getFavorites(@Query("user_id") userID: String? = null): PhotoResponse
-
     companion object {
         private const val BASE_URL = "https://api.flickr.com/services/"
 

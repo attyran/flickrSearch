@@ -1,5 +1,8 @@
 package com.attyran.flickrsearch
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,8 +21,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,12 +40,37 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun FlickrApp(
     onPhotoClicked: (String) -> Unit,
-    viewModel: FlickrViewModel = hiltViewModel()
+    viewModel: FlickrViewModel = hiltViewModel(),
+    oAuthViewModel: OAuthViewModel
 ) {
     val searchQuery = rememberSaveable { mutableStateOf("") }
     val photoState = viewModel.photoState.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
     val imagesState = rememberSaveable { mutableStateOf(emptyList<String>()) }
+    val authState = oAuthViewModel.authState.collectAsState()
+    val hasToken = remember { mutableStateOf(false) }
+    val errorMessage = rememberSaveable { mutableStateOf<String?>(null) }
+
+    val context = LocalContext.current
+    LaunchedEffect(authState.value) {
+        when(authState.value) {
+            is OAuthViewModel.AuthState.Success -> {
+                val url = (authState.value as OAuthViewModel.AuthState.Success).url
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                try {
+                    context.startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    // Handle exception
+                }
+            }
+            is OAuthViewModel.AuthState.TokenSuccess -> {
+                hasToken.value = true
+            }
+            is OAuthViewModel.AuthState.Error -> {
+                errorMessage.value = (authState.value as OAuthViewModel.AuthState.Error).message
+            }
+        }
+    }
 
     Column {
         OutlinedTextField(
@@ -68,6 +98,18 @@ fun FlickrApp(
         ) {
             Text(text = "Search")
         }
+        if (!hasToken.value) {
+            Button(
+                onClick = {
+                    oAuthViewModel.requestToken()
+                },
+                modifier = Modifier
+                    .padding(16.dp)
+            ) {
+                Text(text = "Login")
+            }
+        }
+
         when (photoState.value) {
             is FlickrViewModel.UIState.Success -> {
                 imagesState.value = emptyList()
@@ -83,6 +125,10 @@ fun FlickrApp(
             is FlickrViewModel.UIState.Error -> {
                 Text(text = (photoState.value as FlickrViewModel.UIState.Error).message)
             }
+        }
+
+        if (errorMessage.value != null) {
+            Text(text = errorMessage.value!!)
         }
     }
 }

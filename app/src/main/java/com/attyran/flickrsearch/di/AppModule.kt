@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import com.attyran.flickrsearch.network.BackendService
+import com.attyran.flickrsearch.network.OAuthService
 import javax.inject.Singleton
 
 @Module
@@ -13,7 +14,13 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideTapToSnapService(): BackendService {
+    fun provideBackendService(): BackendService {
         return BackendService.create()
+    }
+
+    @Singleton
+    @Provides
+    fun provideOAuthService(): OAuthService {
+        return OAuthService.create()
     }
 }

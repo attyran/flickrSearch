@@ -18,7 +18,8 @@ fun FlickrNavGraph(
     startDestination: String = FlickrDestinations.SEARCH_ROUTE,
     navActions: FlickrNavigationActions = remember(navController) {
         FlickrNavigationActions(navController)
-    }
+    },
+    authViewModel: OAuthViewModel
 ) {
     NavHost(
         navController = navController,
@@ -26,9 +27,10 @@ fun FlickrNavGraph(
         modifier = modifier
     ) {
         composable(FlickrDestinations.SEARCH_ROUTE) {
-            FlickrApp(onPhotoClicked = { photoURL ->
-                navActions.navigateToDetails(photoURL)
-            })
+            FlickrApp(
+                onPhotoClicked = { photoURL -> navActions.navigateToDetails(photoURL) },
+                oAuthViewModel = authViewModel
+            )
         }
         composable(
             FlickrDestinations.DETAILS_ROUTE,

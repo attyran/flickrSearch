@@ -17,6 +17,8 @@ android {
         rootProject.file('flickr.properties').withInputStream { localProperties.load(it) }
         def flickrApiKey = localProperties['flickrApiKey']
         buildConfigField 'String', 'FLICKR_API_KEY', "\"${flickrApiKey}\""
+        def flickrApiSecretKey = localProperties['flickrApiSecret']
+        buildConfigField 'String', 'FLICKR_API_SECRET_KEY', "\"${flickrApiSecretKey}\""
     }
     buildTypes {
         release {
@@ -84,6 +86,8 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
     implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
 
+    implementation 'com.squareup.retrofit2:converter-scalars:2.9.0'
+
     // ViewModel and LiveData
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
 
@@ -99,4 +103,6 @@ dependencies {
     kapt 'com.google.dagger:hilt-compiler:2.51.1'
     implementation 'androidx.hilt:hilt-navigation-compose:1.2.0'
 
+    // Encrypted Shared Prefs
+    implementation "androidx.security:security-crypto:1.1.0-alpha06"
 }
