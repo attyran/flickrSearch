@@ -20,16 +20,16 @@ class FlickrViewModel @Inject constructor(
 
     fun searchTag(tag: String) {
         viewModelScope.launch {
-            try {
-                val result = backendService.search(tag)
-
-                if (result.stat != "ok") {
+            val result = kotlin.runCatching { backendService.search(tag) }
+            result.onSuccess { response ->
+                if (response.stat != "ok" || response.photos.photo.isEmpty()) {
                     _photoState.value = UIState.Error("No photos found")
-                    return@launch
+                } else {
+                    _photoState.value = UIState.Success(response.photos.photo)
                 }
-                _photoState.value = UIState.Success(result.photos.photo)
-            } catch (e: Exception) {
-                _photoState.value = UIState.Error(e.message ?: "An error occurred")
+            }
+            result.onFailure { throwable ->
+                _photoState.value = UIState.Error(throwable.message ?: "An error occurred")
             }
         }
     }
