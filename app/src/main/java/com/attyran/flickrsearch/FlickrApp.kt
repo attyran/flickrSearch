@@ -1,5 +1,6 @@
 package com.attyran.flickrsearch
 
+import android.app.Application
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
@@ -36,7 +37,10 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.attyran.flickrsearch.network.BackendService
+import com.attyran.flickrsearch.network.OAuthService
 
 @Composable
 fun FlickrApp(
@@ -174,5 +178,16 @@ fun ImageListItem(imageUrl: String, onPhotoClicked: (String) -> Unit) {
             .size(180.dp)
             .clip(MaterialTheme.shapes.medium)
             .clickable { onPhotoClicked(imageUrl) }
+    )
+}
+
+@Preview
+@Composable
+private fun FlickrAppPreview() {
+    val viewModel = FlickrViewModel(BackendService.create())
+    FlickrApp(
+        onPhotoClicked = {},
+        viewModel = viewModel,
+        oAuthViewModel = OAuthViewModel(OAuthService.create(), application = Application())
     )
 }
