@@ -55,6 +55,7 @@ android {
 val kotlinVersion:String by project
 
 dependencies {
+    implementation(libs.androidx.lifecycle.runtime.compose.android)
     val composeBom = platform("androidx.compose:compose-bom:2024.06.00")
     implementation(composeBom)
     androidTestImplementation(composeBom)

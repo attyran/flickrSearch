@@ -39,6 +39,7 @@ import coil.request.ImageRequest
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.attyran.flickrsearch.network.BackendService
 import com.attyran.flickrsearch.network.OAuthService
 
@@ -49,7 +50,7 @@ fun FlickrApp(
     oAuthViewModel: OAuthViewModel
 ) {
     val searchQuery = rememberSaveable { mutableStateOf("") }
-    val photoState = viewModel.photoState.collectAsState()
+    val photoState = viewModel.photoState.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
     val imagesState = rememberSaveable { mutableStateOf(emptyList<String>()) }
     val authState = oAuthViewModel.authState.collectAsState()
