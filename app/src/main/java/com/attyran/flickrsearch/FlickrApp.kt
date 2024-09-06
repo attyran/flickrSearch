@@ -120,21 +120,27 @@ fun FlickrApp(
             }
         }
 
-        when (photoState.value) {
-            is FlickrViewModel.UIState.Success -> {
-                imagesState.value = emptyList()
-                imagesState.value =
-                    (photoState.value as FlickrViewModel.UIState.Success).photos.map { photo ->
+        LaunchedEffect(photoState.value) {
+            when (val state = photoState.value) {
+                is FlickrUiState.Success -> {
+                    imagesState.value = state.photos.map { photo ->
                         String.format(
                             "https://farm%s.staticflickr.com/%s/%s_%s.jpg",
                             photo.farm, photo.server, photo.id, photo.secret
                         )
                     }
-                PhotoGrid(imagesState.value, onPhotoClicked)
+                }
+                is FlickrUiState.Error -> {
+                    errorMessage.value = state.message
+                }
+                is FlickrUiState.Idle -> {
+                    imagesState.value = emptyList()
+                }
             }
-            is FlickrViewModel.UIState.Error -> {
-                Text(text = (photoState.value as FlickrViewModel.UIState.Error).message)
-            }
+
+        }
+        if (imagesState.value.isNotEmpty()) {
+            PhotoGrid(imagesState.value, onPhotoClicked)
         }
 
         if (errorMessage.value != null) {
@@ -185,7 +191,7 @@ fun ImageListItem(imageUrl: String, onPhotoClicked: (String) -> Unit) {
 @Preview
 @Composable
 private fun FlickrAppPreview() {
-    val viewModel = FlickrViewModel(BackendService.create())
+    val viewModel = FlickrViewModel(FlickrRepository(BackendService.create()))
     FlickrApp(
         onPhotoClicked = {},
         viewModel = viewModel,

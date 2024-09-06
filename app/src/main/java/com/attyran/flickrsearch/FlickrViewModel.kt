@@ -12,30 +12,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FlickrViewModel @Inject constructor(
-    private val backendService: BackendService
+    private val repository: FlickrRepository
 ) : ViewModel() {
 
-    private val _photoState = MutableStateFlow<UIState>(UIState.Error(""))
-    val photoState: StateFlow<UIState> = _photoState
+    val photoState: StateFlow<FlickrUiState> = repository.flickrState
 
     fun searchTag(tag: String) {
         viewModelScope.launch {
-            val result = kotlin.runCatching { backendService.search(tag) }
-            result.onSuccess { response ->
-                if (response.stat != "ok" || response.photos.photo.isEmpty()) {
-                    _photoState.value = UIState.Error("No photos found")
-                } else {
-                    _photoState.value = UIState.Success(response.photos.photo)
-                }
-            }
-            result.onFailure { throwable ->
-                _photoState.value = UIState.Error(throwable.message ?: "An error occurred")
-            }
+            repository.searchTag(tag)
         }
-    }
-
-    sealed class UIState {
-        data class Success(val photos: List<PhotoItem>) : UIState()
-        data class Error(val message: String) : UIState()
     }
 }
