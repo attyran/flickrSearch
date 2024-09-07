@@ -14,12 +14,19 @@ import javax.inject.Inject
 class FlickrViewModel @Inject constructor(
     private val repository: FlickrRepository
 ) : ViewModel() {
-
-    val photoState: StateFlow<FlickrUiState> = repository.flickrState
+    private val _photoState = MutableStateFlow<FlickrUiState>(FlickrUiState.Idle)
+    val photoState: StateFlow<FlickrUiState> = _photoState
 
     fun searchTag(tag: String) {
         viewModelScope.launch {
-            repository.searchTag(tag)
+            _photoState.value = FlickrUiState.Idle
+            val result = repository.searchTag(tag)
+            result.onSuccess { photos ->
+                _photoState.value = FlickrUiState.Success(photos)
+            }
+            result.onFailure { throwable ->
+                _photoState.value = FlickrUiState.Error(throwable.message ?: "An error occurred")
+            }
         }
     }
 }
