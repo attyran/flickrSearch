@@ -100,8 +100,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
     // Coil
-    implementation(libs.coil)
     implementation(libs.coil.compose)
+    implementation(libs.coil.okhttp)
 
     // Navigation
     implementation(libs.androidx.navigation.compose)

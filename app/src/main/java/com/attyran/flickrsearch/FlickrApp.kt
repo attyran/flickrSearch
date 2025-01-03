@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,12 +33,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
 import com.attyran.flickrsearch.network.BackendService
 import com.attyran.flickrsearch.network.OAuthService
 
@@ -65,7 +64,7 @@ fun FlickrApp(
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                 try {
                     context.startActivity(intent)
-                } catch (e: ActivityNotFoundException) {
+                } catch (_: ActivityNotFoundException) {
                     // Handle exception
                 }
             }
@@ -171,14 +170,13 @@ fun PhotoGrid(images: List<String>, onPhotoClicked: (String) -> Unit) {
 fun ImageListItem(imageUrl: String, onPhotoClicked: (String) -> Unit) {
     val context = LocalContext.current
     val size = with(LocalDensity.current) { 180.dp.roundToPx() }
-    val request = ImageRequest.Builder(context)
+    val model = ImageRequest.Builder(context)
         .data(imageUrl)
         .size(size)
         .build()
-    val painter = rememberAsyncImagePainter(request)
 
-    Image(
-        painter = painter,
+    AsyncImage(
+        model = model,
         contentDescription = null,
         modifier = Modifier
             .padding(4.dp)
@@ -197,4 +195,14 @@ private fun FlickrAppPreview() {
         viewModel = viewModel,
         oAuthViewModel = OAuthViewModel(OAuthService.create(), application = Application())
     )
+}
+
+@Preview
+@Composable
+private fun PhotoGridPreview() {
+    PhotoGrid(
+        images = listOf(
+            "https://images.unsplash.com/photo-1534643960519-11ad79bc19df?q=80&w=2370&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        )
+    ) {}
 }

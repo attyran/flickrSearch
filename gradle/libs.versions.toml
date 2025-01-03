@@ -2,7 +2,7 @@
 activityComposeVersion = "1.9.3"
 appcompatVersion = "1.7.0"
 cardviewVersion = "1.0.0"
-coilVersion = "2.7.0"
+coilVersion = "3.0.4"
 constraintlayoutComposeVersion = "1.1.0"
 constraintlayoutVersion = "2.2.0"
 coreTestingVersion = "1.1.1"
@@ -45,8 +45,8 @@ androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
-coil = { module = "io.coil-kt:coil", version.ref = "coilVersion" }
-coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilVersion" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilVersion" }
+coil-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilVersion" }
 converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }
 converter-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "retrofit" }
 core-testing = { module = "android.arch.core:core-testing", version.ref = "coreTestingVersion" }
