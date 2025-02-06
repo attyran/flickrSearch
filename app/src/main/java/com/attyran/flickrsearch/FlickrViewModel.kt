@@ -19,13 +19,13 @@ class FlickrViewModel @Inject constructor(
 
     fun searchTag(tag: String) {
         viewModelScope.launch {
-            _photoState.value = FlickrUiState.Idle
-            val result = repository.searchTag(tag)
-            result.onSuccess { photos ->
-                _photoState.value = FlickrUiState.Success(photos)
-            }
-            result.onFailure { throwable ->
-                _photoState.value = FlickrUiState.Error(throwable.message ?: "An error occurred")
+            repository.searchTag(tag).collect { result ->
+                result.onSuccess { photos ->
+                    _photoState.value = FlickrUiState.Success(photos)
+                }
+                result.onFailure { throwable ->
+                    _photoState.value = FlickrUiState.Error(throwable.message ?: "An error occurred")
+                }
             }
         }
     }
