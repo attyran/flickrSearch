@@ -2,8 +2,6 @@ package com.attyran.flickrsearch
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.attyran.flickrsearch.network.BackendService
-import com.attyran.flickrsearch.network.PhotoItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
