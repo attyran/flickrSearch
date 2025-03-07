@@ -99,5 +99,5 @@ dependencies {
     // Encrypted Shared Prefs
     implementation(libs.androidx.security.crypto)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+    implementation(libs.kotlinx.serialization.json)
 }
