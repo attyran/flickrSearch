@@ -1,6 +1,5 @@
 package com.attyran.playground
 
-import android.R.string
 import android.content.Context
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,7 +7,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.InputStreamReader
 
