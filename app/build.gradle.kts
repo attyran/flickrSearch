@@ -110,4 +110,6 @@ dependencies {
 
     // Encrypted Shared Prefs
     implementation(libs.androidx.security.crypto)
+
+    testImplementation(libs.mockk)
 }
