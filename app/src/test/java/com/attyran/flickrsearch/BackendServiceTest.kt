@@ -40,7 +40,7 @@ class BackendServiceTest {
         mockWebServer.enqueue(mockResponse)
 
         // Act
-        val result = service.search("test")
+        val result = service.search("test", 1, 100)
 
         // Assert
         assertEquals("ok", result.stat)

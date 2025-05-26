@@ -1,9 +1,11 @@
 package com.attyran.flickrsearch
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.attyran.flickrsearch.network.BackendService
 import com.attyran.flickrsearch.network.PhotoItem
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -11,16 +13,14 @@ import javax.inject.Singleton
 class FlickrRepository @Inject constructor(
     private val backendService: BackendService
 ) {
-    fun searchTag(tag: String): Flow<Result<List<PhotoItem>>> = flow {
-        emit(
-            kotlin.runCatching { backendService.search(tag) }
-                .mapCatching { response ->
-                    if (response.stat != "ok" || response.photos.photo.isEmpty()) {
-                        throw Exception("No photos found")
-                    } else {
-                        response.photos.photo
-                    }
-                }
-        )
+    fun searchTag(tag: String): Flow<PagingData<PhotoItem>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 10,
+                enablePlaceholders = false,
+                initialLoadSize = 10
+            ),
+            pagingSourceFactory = { FlickrPagingSource(backendService, tag) }
+        ).flow
     }
 }

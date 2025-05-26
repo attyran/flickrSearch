@@ -20,12 +20,15 @@ mockitoCoreVersion = "5.17.0"
 moshi = "1.15.2"
 navigationComposeVersion = "2.8.9"
 okhttpLogging = "4.12.0"
+pagingVersion = "3.3.6"
 recyclerviewVersion = "1.4.0"
 retrofit = "2.11.0"
 runnerVersion = "1.6.2"
 securityCryptoVersion = "1.1.0-alpha07"
 lifecycleRuntimeComposeAndroidVersion = "2.8.7"
 kotlinSerialization = "1.8.0"
+coroutinesVersion = "1.7.3"
+mockitoKotlinVersion = "5.2.1"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityComposeVersion" }
@@ -40,6 +43,9 @@ androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 androidx-material3 = { module = "androidx.compose.material3:material3" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationComposeVersion" }
+androidx-paging-runtime = { module = "androidx.paging:paging-runtime-ktx", version.ref = "pagingVersion" }
+androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingVersion" }
+androidx-paging-testing = { module = "androidx.paging:paging-testing", version.ref = "pagingVersion" }
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerviewVersion" }
 androidx-runner = { module = "androidx.test:runner", version.ref = "runnerVersion" }
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCryptoVersion" }
@@ -59,8 +65,10 @@ hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hil
 junit = { module = "junit:junit", version.ref = "junitVersion" }
 kotlin-stdlib-jdk7 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk7", version.ref = "kotlinTestVersion" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlinTestVersion" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesVersion" }
 mockito-all = { module = "org.mockito:mockito-all", version.ref = "mockitoAllVersion" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCoreVersion" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlinVersion" }
 mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttpLogging" }
 moshi = { module = "com.squareup.moshi:moshi", version.ref = "moshi" }
 moshi-kotlin-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshi" }

@@ -53,7 +53,10 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
     implementation(libs.androidx.lifecycle.runtime.compose.android)
+    
     val composeBom = platform("androidx.compose:compose-bom:2025.04.01")
     implementation(composeBom)
     androidTestImplementation(composeBom)
@@ -74,15 +77,22 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.cardview)
     implementation(libs.androidx.constraintlayout)
+    
+    // Testing
     testImplementation(libs.junit)
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.androidx.paging.testing)
     androidTestImplementation(libs.androidx.runner)
     androidTestImplementation(libs.androidx.espresso.core)
     testImplementation(libs.mockito.all)
     testImplementation(libs.mockito.core)
-    implementation(libs.kotlin.stdlib.jdk7)
     testImplementation(libs.core.testing)
     testImplementation(libs.mockwebserver)
-    testImplementation(libs.kotlin.test)
+    testImplementation(libs.mockk)
+
+    implementation(libs.kotlin.stdlib.jdk7)
 
     // Retrofit
     implementation(libs.retrofit2)
@@ -92,11 +102,6 @@ dependencies {
     ksp(libs.moshi.kotlin.codegen)
     implementation(libs.okhttp3.logging.interceptor)
 
-
-
-    // ViewModel and LiveData
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-
     // Coil
     implementation(libs.coil.compose)
     implementation(libs.coil.okhttp)
@@ -104,12 +109,11 @@ dependencies {
     // Navigation
     implementation(libs.androidx.navigation.compose)
 
+    // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
     // Encrypted Shared Prefs
     implementation(libs.androidx.security.crypto)
-
-    testImplementation(libs.mockk)
 }

@@ -3,19 +3,16 @@ package com.attyran.flickrsearch
 import android.app.Application
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -36,11 +33,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import com.attyran.flickrsearch.network.BackendService
 import com.attyran.flickrsearch.network.OAuthService
+import androidx.core.net.toUri
 
 @Composable
 fun FlickrApp(
@@ -49,19 +47,18 @@ fun FlickrApp(
     oAuthViewModel: OAuthViewModel
 ) {
     val searchQuery = rememberSaveable { mutableStateOf("") }
-    val photoState = viewModel.photoState.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
-    val imagesState = rememberSaveable { mutableStateOf(emptyList<String>()) }
     val authState = oAuthViewModel.authState.collectAsState()
     val hasToken = remember { mutableStateOf(false) }
     val errorMessage = rememberSaveable { mutableStateOf<String?>(null) }
+    val photos = viewModel.searchResults.collectAsLazyPagingItems()
 
     val context = LocalContext.current
     LaunchedEffect(authState.value) {
         when(authState.value) {
             is OAuthViewModel.AuthState.Success -> {
                 val url = (authState.value as OAuthViewModel.AuthState.Success).url
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                val intent = Intent(Intent.ACTION_VIEW, url.toUri())
                 try {
                     context.startActivity(intent)
                 } catch (_: ActivityNotFoundException) {
@@ -97,7 +94,6 @@ fun FlickrApp(
         )
         Button(
             onClick = {
-                imagesState.value = emptyList()
                 viewModel.searchTag(searchQuery.value)
                 keyboardController?.hide()
             },
@@ -119,49 +115,31 @@ fun FlickrApp(
             }
         }
 
-        LaunchedEffect(photoState.value) {
-            when (val state = photoState.value) {
-                is FlickrUiState.Success -> {
-                    imagesState.value = state.photos.map { photo ->
-                        String.format(
-                            "https://farm%s.staticflickr.com/%s/%s_%s.jpg",
-                            photo.farm, photo.server, photo.id, photo.secret
-                        )
-                    }
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(
+                count = photos.itemCount,
+                key = { index -> 
+                    val photo = photos[index]
+                    // Combine index and photo ID to ensure uniqueness
+                    "${photo?.id}_$index"
                 }
-                is FlickrUiState.Error -> {
-                    errorMessage.value = state.message
-                }
-                is FlickrUiState.Idle -> {
-                    imagesState.value = emptyList()
+            ) { index ->
+                val photo = photos[index]
+                photo?.let {
+                    val imageUrl = String.format(
+                        "https://farm%s.staticflickr.com/%s/%s_%s.jpg",
+                        it.farm, it.server, it.id, it.secret
+                    )
+                    ImageListItem(imageUrl = imageUrl, onPhotoClicked)
                 }
             }
-
-        }
-        if (imagesState.value.isNotEmpty()) {
-            PhotoGrid(imagesState.value, onPhotoClicked)
         }
 
         if (errorMessage.value != null) {
             Text(text = errorMessage.value!!)
-        }
-    }
-}
-
-@Composable
-fun PhotoGrid(images: List<String>, onPhotoClicked: (String) -> Unit) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        items(images.chunked(2)) { imageRow ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                for (imageUrl in imageRow) {
-                    ImageListItem(imageUrl = imageUrl, onPhotoClicked)
-                }
-            }
         }
     }
 }
@@ -195,14 +173,4 @@ private fun FlickrAppPreview() {
         viewModel = viewModel,
         oAuthViewModel = OAuthViewModel(OAuthService.create(), application = Application())
     )
-}
-
-@Preview
-@Composable
-private fun PhotoGridPreview() {
-    PhotoGrid(
-        images = listOf(
-            "https://images.unsplash.com/photo-1534643960519-11ad79bc19df?q=80&w=2370&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        )
-    ) {}
 }
