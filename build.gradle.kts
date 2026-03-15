@@ -15,7 +15,7 @@ buildscript {
     }
     dependencies {
         classpath(libs.gradle)
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.10")
+        classpath(libs.kotlin.gradle.plugin)
         classpath(libs.hilt.android.gradle.plugin)
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
