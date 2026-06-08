@@ -72,11 +72,6 @@ dependencies {
     ksp(libs.moshi.kotlin.codegen)
     implementation(libs.okhttp3.logging.interceptor)
 
-
-
-    // ViewModel and LiveData
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-
     // Coil
     implementation(libs.coil.compose)
     implementation(libs.coil.okhttp)
@@ -86,7 +81,7 @@ dependencies {
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
-    ksp("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.0")
+    ksp(libs.kotlin.metadatajvm)
     implementation(libs.androidx.hilt.navigation.compose)
 
     // Encrypted Shared Prefs
