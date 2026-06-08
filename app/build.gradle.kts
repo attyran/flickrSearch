@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.attyran.flickrsearch"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.attyran.flickrsearch"
@@ -52,7 +52,7 @@ dependencies {
     implementation(libs.androidx.paging.compose)
     implementation(libs.androidx.lifecycle.runtime.compose.android)
     
-    val composeBom = platform("androidx.compose:compose-bom:2025.04.01")
+    val composeBom = platform("androidx.compose:compose-bom:2026.05.01")
     implementation(composeBom)
     androidTestImplementation(composeBom)
 
@@ -107,6 +107,7 @@ dependencies {
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+    ksp(libs.kotlin.metadatajvm)
     implementation(libs.androidx.hilt.navigation.compose)
 
     // Encrypted Shared Prefs
