@@ -6,6 +6,7 @@ import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,11 +22,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -34,7 +37,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
-import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import com.attyran.flickrsearch.network.BackendService
 import com.attyran.flickrsearch.network.OAuthService
@@ -50,8 +53,13 @@ fun FlickrApp(
     val keyboardController = LocalSoftwareKeyboardController.current
     val authState = oAuthViewModel.authState.collectAsState()
     val hasToken = remember { mutableStateOf(false) }
-    val errorMessage = rememberSaveable { mutableStateOf<String?>(null) }
+    val oAuthErrorMessage = rememberSaveable { mutableStateOf<String?>(null) }
+    val uiState by viewModel.uiState.collectAsState()
     val photos = viewModel.searchResults.collectAsLazyPagingItems()
+
+    LaunchedEffect(photos.loadState.refresh) {
+        viewModel.onRefreshLoadState(photos.loadState.refresh)
+    }
 
     val context = LocalContext.current
     LaunchedEffect(authState.value) {
@@ -69,7 +77,7 @@ fun FlickrApp(
                 hasToken.value = true
             }
             is OAuthViewModel.AuthState.Error -> {
-                errorMessage.value = (authState.value as OAuthViewModel.AuthState.Error).message
+                oAuthErrorMessage.value = (authState.value as OAuthViewModel.AuthState.Error).message
             }
         }
     }
@@ -115,31 +123,45 @@ fun FlickrApp(
             }
         }
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(
-                count = photos.itemCount,
-                key = { index -> 
-                    val photo = photos[index]
-                    // Combine index and photo ID to ensure uniqueness
-                    "${photo?.id}_$index"
+        when (val state = uiState) {
+            FlickrViewModel.FlickrUiState.Idle -> Unit
+            FlickrViewModel.FlickrUiState.Loading -> {
+                ShimmerGrid(modifier = Modifier.fillMaxSize())
+            }
+            FlickrViewModel.FlickrUiState.Success -> {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(
+                        count = photos.itemCount,
+                        key = { index ->
+                            val photo = photos[index]
+                            "${photo?.id}_$index"
+                        }
+                    ) { index ->
+                        val photo = photos[index]
+                        photo?.let {
+                            val imageUrl = String.format(
+                                "https://farm%s.staticflickr.com/%s/%s_%s.jpg",
+                                it.farm, it.server, it.id, it.secret
+                            )
+                            ImageListItem(imageUrl = imageUrl, onPhotoClicked)
+                        }
+                    }
                 }
-            ) { index ->
-                val photo = photos[index]
-                photo?.let {
-                    val imageUrl = String.format(
-                        "https://farm%s.staticflickr.com/%s/%s_%s.jpg",
-                        it.farm, it.server, it.id, it.secret
-                    )
-                    ImageListItem(imageUrl = imageUrl, onPhotoClicked)
-                }
+            }
+            is FlickrViewModel.FlickrUiState.Error -> {
+                Text(
+                    text = state.message,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(16.dp)
+                )
             }
         }
 
-        if (errorMessage.value != null) {
-            Text(text = errorMessage.value!!)
+        if (oAuthErrorMessage.value != null) {
+            Text(text = oAuthErrorMessage.value!!)
         }
     }
 }
@@ -153,14 +175,18 @@ fun ImageListItem(imageUrl: String, onPhotoClicked: (String) -> Unit) {
         .size(size)
         .build()
 
-    AsyncImage(
+    SubcomposeAsyncImage(
         model = model,
         contentDescription = null,
+        contentScale = ContentScale.Crop,
         modifier = Modifier
             .padding(4.dp)
             .size(180.dp)
             .clip(MaterialTheme.shapes.medium)
-            .clickable { onPhotoClicked(imageUrl) }
+            .clickable { onPhotoClicked(imageUrl) },
+        loading = {
+            ShimmerBox(modifier = Modifier.fillMaxSize())
+        }
     )
 }
 
