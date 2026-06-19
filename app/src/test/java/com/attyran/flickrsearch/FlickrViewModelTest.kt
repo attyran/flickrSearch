@@ -39,7 +39,7 @@ class FlickrViewModelTest {
 
     @Test
     fun `initial uiState is Idle`() {
-        assertEquals(FlickrViewModel.FlickrUiState.Idle, viewModel.uiState.value)
+        assertEquals(FlickrUiState.Idle, viewModel.uiState.value)
     }
 
     @Test
@@ -47,7 +47,7 @@ class FlickrViewModelTest {
         viewModel.searchTag("   ")
 
         assertEquals(
-            FlickrViewModel.FlickrUiState.Error("Search query is blank"),
+            FlickrUiState.Error("Search query is blank"),
             viewModel.uiState.value
         )
         verify(exactly = 0) { repository.searchTag(any()) }
@@ -57,7 +57,7 @@ class FlickrViewModelTest {
     fun `searchTag with new query sets Loading`() = runTest {
         viewModel.searchTag("keanu")
 
-        assertEquals(FlickrViewModel.FlickrUiState.Loading, viewModel.uiState.value)
+        assertEquals(FlickrUiState.Loading, viewModel.uiState.value)
         advanceUntilIdle()
 
         verify(exactly = 1) { repository.searchTag("keanu") }
@@ -71,7 +71,7 @@ class FlickrViewModelTest {
 
         viewModel.searchTag("keanu")
 
-        assertEquals(FlickrViewModel.FlickrUiState.Success, viewModel.uiState.value)
+        assertEquals(FlickrUiState.Success, viewModel.uiState.value)
         verify(exactly = 1) { repository.searchTag("keanu") }
     }
 
@@ -81,7 +81,7 @@ class FlickrViewModelTest {
 
         viewModel.onRefreshLoadState(LoadState.Loading)
 
-        assertEquals(FlickrViewModel.FlickrUiState.Loading, viewModel.uiState.value)
+        assertEquals(FlickrUiState.Loading, viewModel.uiState.value)
     }
 
     @Test
@@ -90,7 +90,7 @@ class FlickrViewModelTest {
 
         viewModel.onRefreshLoadState(LoadState.NotLoading(endOfPaginationReached = false))
 
-        assertEquals(FlickrViewModel.FlickrUiState.Success, viewModel.uiState.value)
+        assertEquals(FlickrUiState.Success, viewModel.uiState.value)
     }
 
     @Test
@@ -100,7 +100,7 @@ class FlickrViewModelTest {
         viewModel.onRefreshLoadState(LoadState.Error(RuntimeException("API error")))
 
         assertEquals(
-            FlickrViewModel.FlickrUiState.Error("API error"),
+            FlickrUiState.Error("API error"),
             viewModel.uiState.value
         )
     }
@@ -112,7 +112,7 @@ class FlickrViewModelTest {
         viewModel.onRefreshLoadState(LoadState.Error(RuntimeException()))
 
         assertEquals(
-            FlickrViewModel.FlickrUiState.Error("Failed to load photos"),
+            FlickrUiState.Error("Failed to load photos"),
             viewModel.uiState.value
         )
     }
@@ -121,7 +121,7 @@ class FlickrViewModelTest {
     fun `onRefreshLoadState is ignored before any search`() {
         viewModel.onRefreshLoadState(LoadState.NotLoading(endOfPaginationReached = false))
 
-        assertEquals(FlickrViewModel.FlickrUiState.Idle, viewModel.uiState.value)
+        assertEquals(FlickrUiState.Idle, viewModel.uiState.value)
     }
 
     @Test
@@ -132,7 +132,7 @@ class FlickrViewModelTest {
 
         viewModel.searchTag("matrix")
 
-        assertEquals(FlickrViewModel.FlickrUiState.Loading, viewModel.uiState.value)
+        assertEquals(FlickrUiState.Loading, viewModel.uiState.value)
         advanceUntilIdle()
         verify(exactly = 1) { repository.searchTag("keanu") }
         verify(exactly = 1) { repository.searchTag("matrix") }

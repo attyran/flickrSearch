@@ -2,6 +2,10 @@ package com.attyran.flickrsearch.network
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
+/**
+ * Data class representing an individual photo item returned by the Flickr API, containing metadata
+ * like ID, owner, secret, server, farm, and title to construct the image URL and show the image.
+ */
 @JsonClass(generateAdapter = true)
 data class PhotoItem(
     @Json(name = "id") val id: String,

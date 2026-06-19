@@ -19,6 +19,10 @@ import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import javax.inject.Inject
 
+/**
+ * ViewModel responsible for driving the Flickr OAuth authentication flow,
+ * handling signing requests, verifying authorization, and securely storing access tokens.
+ */
 @HiltViewModel
 class OAuthViewModel @Inject constructor(
     private val oAuthService: OAuthService,
@@ -255,6 +259,9 @@ class OAuthViewModel @Inject constructor(
         return "$method&$encodedUrl&$encodedParamsString"
     }
 
+    /**
+     * Sealed class representing the distinct states of the OAuth authentication flow.
+     */
     sealed class AuthState {
         data class Success(val url: String): AuthState()
         data class Error(val message: String): AuthState()

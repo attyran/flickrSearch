@@ -1,11 +1,9 @@
 package com.attyran.flickrsearch
 
-import android.app.Application
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -35,13 +33,15 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
-import com.attyran.flickrsearch.network.BackendService
-import com.attyran.flickrsearch.network.OAuthService
+import com.attyran.flickrsearch.network.PhotoItem
 import androidx.core.net.toUri
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import kotlinx.coroutines.flow.flowOf
 
 @Composable
 fun FlickrApp(
@@ -49,7 +49,6 @@ fun FlickrApp(
     viewModel: FlickrViewModel = hiltViewModel(),
     oAuthViewModel: OAuthViewModel
 ) {
-    val searchQuery = rememberSaveable { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
     val authState = oAuthViewModel.authState.collectAsState()
     val hasToken = remember { mutableStateOf(false) }
@@ -82,8 +81,38 @@ fun FlickrApp(
         }
     }
 
+    FlickrContent(
+        uiState = uiState,
+        photos = photos,
+        hasToken = hasToken.value,
+        oAuthErrorMessage = oAuthErrorMessage.value,
+        onSearch = { query ->
+            viewModel.searchTag(query)
+            keyboardController?.hide()
+        },
+        onLoginClick = {
+            oAuthViewModel.requestToken()
+        },
+        onPhotoClicked = onPhotoClicked
+    )
+}
+
+@Composable
+fun FlickrContent(
+    uiState: FlickrUiState,
+    photos: LazyPagingItems<PhotoItem>,
+    hasToken: Boolean,
+    oAuthErrorMessage: String?,
+    onSearch: (String) -> Unit,
+    onLoginClick: () -> Unit,
+    onPhotoClicked: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val searchQuery = rememberSaveable { mutableStateOf("") }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .systemBarsPadding()
     ) {
@@ -96,13 +125,13 @@ fun FlickrApp(
             label = { Text(text = "Search") },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = {
-                viewModel.searchTag(searchQuery.value)
+                onSearch(searchQuery.value)
                 keyboardController?.hide()
             })
         )
         Button(
             onClick = {
-                viewModel.searchTag(searchQuery.value)
+                onSearch(searchQuery.value)
                 keyboardController?.hide()
             },
             modifier = Modifier
@@ -111,11 +140,9 @@ fun FlickrApp(
         ) {
             Text(text = "Search")
         }
-        if (!hasToken.value) {
+        if (!hasToken) {
             Button(
-                onClick = {
-                    oAuthViewModel.requestToken()
-                },
+                onClick = onLoginClick,
                 modifier = Modifier
                     .padding(16.dp)
             ) {
@@ -123,12 +150,12 @@ fun FlickrApp(
             }
         }
 
-        when (val state = uiState) {
-            FlickrViewModel.FlickrUiState.Idle -> Unit
-            FlickrViewModel.FlickrUiState.Loading -> {
+        when (uiState) {
+            FlickrUiState.Idle -> Unit
+            FlickrUiState.Loading -> {
                 ShimmerGrid(modifier = Modifier.fillMaxSize())
             }
-            FlickrViewModel.FlickrUiState.Success -> {
+            FlickrUiState.Success -> {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     modifier = Modifier.fillMaxSize()
@@ -151,17 +178,17 @@ fun FlickrApp(
                     }
                 }
             }
-            is FlickrViewModel.FlickrUiState.Error -> {
+            is FlickrUiState.Error -> {
                 Text(
-                    text = state.message,
+                    text = uiState.message,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(16.dp)
                 )
             }
         }
 
-        if (oAuthErrorMessage.value != null) {
-            Text(text = oAuthErrorMessage.value!!)
+        if (oAuthErrorMessage != null) {
+            Text(text = oAuthErrorMessage)
         }
     }
 }
@@ -193,10 +220,43 @@ fun ImageListItem(imageUrl: String, onPhotoClicked: (String) -> Unit) {
 @Preview
 @Composable
 private fun FlickrAppPreview() {
-    val viewModel = FlickrViewModel(FlickrRepository(BackendService.create()))
-    FlickrApp(
-        onPhotoClicked = {},
-        viewModel = viewModel,
-        oAuthViewModel = OAuthViewModel(OAuthService.create(), application = Application())
+    val fakePhotosFlow = flowOf(
+        PagingData.from(
+            listOf(
+                PhotoItem(
+                    id = "1",
+                    owner = "owner1",
+                    secret = "secret1",
+                    server = "server1",
+                    farm = "1",
+                    title = "Title 1",
+                    isPublic = "1",
+                    isFriend = "0",
+                    isFamily = "0"
+                ),
+                PhotoItem(
+                    id = "2",
+                    owner = "owner2",
+                    secret = "secret2",
+                    server = "server2",
+                    farm = "2",
+                    title = "Title 2",
+                    isPublic = "1",
+                    isFriend = "0",
+                    isFamily = "0"
+                )
+            )
+        )
+    )
+    val fakePhotos = fakePhotosFlow.collectAsLazyPagingItems()
+
+    FlickrContent(
+        uiState = FlickrUiState.Success,
+        photos = fakePhotos,
+        hasToken = true,
+        oAuthErrorMessage = null,
+        onSearch = {},
+        onLoginClick = {},
+        onPhotoClicked = {}
     )
 }

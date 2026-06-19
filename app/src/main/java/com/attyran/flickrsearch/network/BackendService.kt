@@ -8,6 +8,9 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 
+/**
+ * Retrofit interface defining the Flickr REST API query methods, specifically for photo search.
+ */
 interface BackendService {
 
     @GET("rest/?&method=flickr.photos.search&api_key=${BuildConfig.FLICKR_API_KEY}&format=json&nojsoncallback=1")

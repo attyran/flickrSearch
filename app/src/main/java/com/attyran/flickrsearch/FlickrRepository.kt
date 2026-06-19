@@ -9,6 +9,10 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Repository class providing a paginated data stream of Flickr photo search results
+ * based on a specific query tag.
+ */
 @Singleton
 class FlickrRepository @Inject constructor(
     private val backendService: BackendService

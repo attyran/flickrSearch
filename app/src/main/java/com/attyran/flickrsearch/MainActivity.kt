@@ -9,6 +9,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * The main entry point activity of the application, managing edge-to-edge layouts,
+ * initializing the Jetpack Compose navigation graph, and handling deep links for the OAuth callback.
+ */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val authViewModel: OAuthViewModel by viewModels()

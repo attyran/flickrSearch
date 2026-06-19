@@ -8,6 +8,9 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 
+/**
+ * Retrofit interface defining endpoint calls to fetch Flickr OAuth request and access tokens.
+ */
 interface OAuthService {
     @GET("oauth/access_token")
     suspend fun getAccessToken(

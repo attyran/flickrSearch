@@ -13,6 +13,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel responsible for managing search requests, handling state transitions
+ * of the Flickr search UI, and caching paginated photo search results.
+ */
 @HiltViewModel
 class FlickrViewModel @Inject constructor(
     private val repository: FlickrRepository
@@ -58,12 +62,5 @@ class FlickrViewModel @Inject constructor(
                 state.error.message ?: "Failed to load photos"
             )
         }
-    }
-
-    sealed interface FlickrUiState {
-        data object Idle : FlickrUiState
-        data object Loading : FlickrUiState
-        data object Success : FlickrUiState
-        data class Error(val message: String) : FlickrUiState
     }
 }

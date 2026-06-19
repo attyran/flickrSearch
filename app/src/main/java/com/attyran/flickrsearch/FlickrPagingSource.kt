@@ -8,6 +8,10 @@ import com.attyran.flickrsearch.network.PhotoItem
 
 private const val STARTING_PAGE_INDEX = 1
 
+/**
+ * A custom PagingSource that handles fetching paginated lists of photo items
+ * from the Flickr BackendService for the Jetpack Paging 3 library.
+ */
 class FlickrPagingSource(
     private val backendService: BackendService,
     private val query: String
