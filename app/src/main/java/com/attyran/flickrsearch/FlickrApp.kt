@@ -57,7 +57,7 @@ fun FlickrApp(
     val photos = viewModel.searchResults.collectAsLazyPagingItems()
 
     LaunchedEffect(photos.loadState.refresh) {
-        viewModel.onRefreshLoadState(photos.loadState.refresh)
+        viewModel.processIntent(FlickrContract.Intent.UpdateLoadState(photos.loadState.refresh))
     }
 
     val context = LocalContext.current
@@ -87,7 +87,7 @@ fun FlickrApp(
         hasToken = hasToken.value,
         oAuthErrorMessage = oAuthErrorMessage.value,
         onSearch = { query ->
-            viewModel.searchTag(query)
+            viewModel.processIntent(FlickrContract.Intent.Search(query))
             keyboardController?.hide()
         },
         onLoginClick = {
@@ -99,7 +99,7 @@ fun FlickrApp(
 
 @Composable
 fun FlickrContent(
-    uiState: FlickrUiState,
+    uiState: FlickrContract.UiState,
     photos: LazyPagingItems<PhotoItem>,
     hasToken: Boolean,
     oAuthErrorMessage: String?,
@@ -151,11 +151,11 @@ fun FlickrContent(
         }
 
         when (uiState) {
-            FlickrUiState.Idle -> Unit
-            FlickrUiState.Loading -> {
+            FlickrContract.UiState.Idle -> Unit
+            FlickrContract.UiState.Loading -> {
                 ShimmerGrid(modifier = Modifier.fillMaxSize())
             }
-            FlickrUiState.Success -> {
+            FlickrContract.UiState.Success -> {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     modifier = Modifier.fillMaxSize()
@@ -178,7 +178,7 @@ fun FlickrContent(
                     }
                 }
             }
-            is FlickrUiState.Error -> {
+            is FlickrContract.UiState.Error -> {
                 Text(
                     text = uiState.message,
                     color = MaterialTheme.colorScheme.error,
@@ -251,7 +251,7 @@ private fun FlickrAppPreview() {
     val fakePhotos = fakePhotosFlow.collectAsLazyPagingItems()
 
     FlickrContent(
-        uiState = FlickrUiState.Success,
+        uiState = FlickrContract.UiState.Success,
         photos = fakePhotos,
         hasToken = true,
         oAuthErrorMessage = null,

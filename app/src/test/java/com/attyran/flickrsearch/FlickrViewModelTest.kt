@@ -39,15 +39,15 @@ class FlickrViewModelTest {
 
     @Test
     fun `initial uiState is Idle`() {
-        assertEquals(FlickrUiState.Idle, viewModel.uiState.value)
+        assertEquals(FlickrContract.UiState.Idle, viewModel.uiState.value)
     }
 
     @Test
     fun `searchTag with blank query sets Error`() = runTest {
-        viewModel.searchTag("   ")
+        viewModel.processIntent(FlickrContract.Intent.Search("   "))
 
         assertEquals(
-            FlickrUiState.Error("Search query is blank"),
+            FlickrContract.UiState.Error("Search query is blank"),
             viewModel.uiState.value
         )
         verify(exactly = 0) { repository.searchTag(any()) }
@@ -55,9 +55,9 @@ class FlickrViewModelTest {
 
     @Test
     fun `searchTag with new query sets Loading`() = runTest {
-        viewModel.searchTag("keanu")
+        viewModel.processIntent(FlickrContract.Intent.Search("keanu"))
 
-        assertEquals(FlickrUiState.Loading, viewModel.uiState.value)
+        assertEquals(FlickrContract.UiState.Loading, viewModel.uiState.value)
         advanceUntilIdle()
 
         verify(exactly = 1) { repository.searchTag("keanu") }
@@ -65,74 +65,74 @@ class FlickrViewModelTest {
 
     @Test
     fun `searchTag with same query does not change uiState or re-fetch`() = runTest {
-        viewModel.searchTag("keanu")
+        viewModel.processIntent(FlickrContract.Intent.Search("keanu"))
         advanceUntilIdle()
-        viewModel.onRefreshLoadState(LoadState.NotLoading(endOfPaginationReached = false))
+        viewModel.processIntent(FlickrContract.Intent.UpdateLoadState(LoadState.NotLoading(endOfPaginationReached = false)))
 
-        viewModel.searchTag("keanu")
+        viewModel.processIntent(FlickrContract.Intent.Search("keanu"))
 
-        assertEquals(FlickrUiState.Success, viewModel.uiState.value)
+        assertEquals(FlickrContract.UiState.Success, viewModel.uiState.value)
         verify(exactly = 1) { repository.searchTag("keanu") }
     }
 
     @Test
     fun `onRefreshLoadState Loading sets Loading`() = runTest {
-        viewModel.searchTag("keanu")
+        viewModel.processIntent(FlickrContract.Intent.Search("keanu"))
 
-        viewModel.onRefreshLoadState(LoadState.Loading)
+        viewModel.processIntent(FlickrContract.Intent.UpdateLoadState(LoadState.Loading))
 
-        assertEquals(FlickrUiState.Loading, viewModel.uiState.value)
+        assertEquals(FlickrContract.UiState.Loading, viewModel.uiState.value)
     }
 
     @Test
     fun `onRefreshLoadState NotLoading sets Success`() = runTest {
-        viewModel.searchTag("keanu")
+        viewModel.processIntent(FlickrContract.Intent.Search("keanu"))
 
-        viewModel.onRefreshLoadState(LoadState.NotLoading(endOfPaginationReached = false))
+        viewModel.processIntent(FlickrContract.Intent.UpdateLoadState(LoadState.NotLoading(endOfPaginationReached = false)))
 
-        assertEquals(FlickrUiState.Success, viewModel.uiState.value)
+        assertEquals(FlickrContract.UiState.Success, viewModel.uiState.value)
     }
 
     @Test
     fun `onRefreshLoadState Error sets Error with message`() = runTest {
-        viewModel.searchTag("keanu")
+        viewModel.processIntent(FlickrContract.Intent.Search("keanu"))
 
-        viewModel.onRefreshLoadState(LoadState.Error(RuntimeException("API error")))
+        viewModel.processIntent(FlickrContract.Intent.UpdateLoadState(LoadState.Error(RuntimeException("API error"))))
 
         assertEquals(
-            FlickrUiState.Error("API error"),
+            FlickrContract.UiState.Error("API error"),
             viewModel.uiState.value
         )
     }
 
     @Test
     fun `onRefreshLoadState Error uses fallback message when throwable has no message`() = runTest {
-        viewModel.searchTag("keanu")
+        viewModel.processIntent(FlickrContract.Intent.Search("keanu"))
 
-        viewModel.onRefreshLoadState(LoadState.Error(RuntimeException()))
+        viewModel.processIntent(FlickrContract.Intent.UpdateLoadState(LoadState.Error(RuntimeException())))
 
         assertEquals(
-            FlickrUiState.Error("Failed to load photos"),
+            FlickrContract.UiState.Error("Failed to load photos"),
             viewModel.uiState.value
         )
     }
 
     @Test
     fun `onRefreshLoadState is ignored before any search`() {
-        viewModel.onRefreshLoadState(LoadState.NotLoading(endOfPaginationReached = false))
+        viewModel.processIntent(FlickrContract.Intent.UpdateLoadState(LoadState.NotLoading(endOfPaginationReached = false)))
 
-        assertEquals(FlickrUiState.Idle, viewModel.uiState.value)
+        assertEquals(FlickrContract.UiState.Idle, viewModel.uiState.value)
     }
 
     @Test
     fun `new search after success sets Loading again`() = runTest {
-        viewModel.searchTag("keanu")
+        viewModel.processIntent(FlickrContract.Intent.Search("keanu"))
         advanceUntilIdle()
-        viewModel.onRefreshLoadState(LoadState.NotLoading(endOfPaginationReached = false))
+        viewModel.processIntent(FlickrContract.Intent.UpdateLoadState(LoadState.NotLoading(endOfPaginationReached = false)))
 
-        viewModel.searchTag("matrix")
+        viewModel.processIntent(FlickrContract.Intent.Search("matrix"))
 
-        assertEquals(FlickrUiState.Loading, viewModel.uiState.value)
+        assertEquals(FlickrContract.UiState.Loading, viewModel.uiState.value)
         advanceUntilIdle()
         verify(exactly = 1) { repository.searchTag("keanu") }
         verify(exactly = 1) { repository.searchTag("matrix") }
