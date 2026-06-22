@@ -1,6 +1,5 @@
 package com.attyran.flickrsearch
 
-import androidx.paging.LoadState
 import androidx.paging.PagingData
 import io.mockk.every
 import io.mockk.mockk
@@ -17,6 +16,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FlickrViewModelTest {
@@ -54,86 +54,33 @@ class FlickrViewModelTest {
     }
 
     @Test
-    fun `searchTag with new query sets Loading`() = runTest {
+    fun `searchTag with new query sets Success`() = runTest {
         viewModel.processIntent(FlickrContract.Intent.Search("keanu"))
+        advanceUntilIdle()
 
-        assertEquals(FlickrContract.UiState.Loading, viewModel.uiState.value)
+        assertTrue(viewModel.uiState.value is FlickrContract.UiState.Success)
+        verify(exactly = 1) { repository.searchTag("keanu") }
+    }
+
+    @Test
+    fun `searchTag with same query does not re-fetch`() = runTest {
+        viewModel.processIntent(FlickrContract.Intent.Search("keanu"))
+        advanceUntilIdle()
+
+        viewModel.processIntent(FlickrContract.Intent.Search("keanu"))
         advanceUntilIdle()
 
         verify(exactly = 1) { repository.searchTag("keanu") }
     }
 
     @Test
-    fun `searchTag with same query does not change uiState or re-fetch`() = runTest {
+    fun `new search after success triggers new query fetch`() = runTest {
         viewModel.processIntent(FlickrContract.Intent.Search("keanu"))
         advanceUntilIdle()
-        viewModel.processIntent(FlickrContract.Intent.UpdateLoadState(LoadState.NotLoading(endOfPaginationReached = false)))
-
-        viewModel.processIntent(FlickrContract.Intent.Search("keanu"))
-
-        assertEquals(FlickrContract.UiState.Success, viewModel.uiState.value)
-        verify(exactly = 1) { repository.searchTag("keanu") }
-    }
-
-    @Test
-    fun `onRefreshLoadState Loading sets Loading`() = runTest {
-        viewModel.processIntent(FlickrContract.Intent.Search("keanu"))
-
-        viewModel.processIntent(FlickrContract.Intent.UpdateLoadState(LoadState.Loading))
-
-        assertEquals(FlickrContract.UiState.Loading, viewModel.uiState.value)
-    }
-
-    @Test
-    fun `onRefreshLoadState NotLoading sets Success`() = runTest {
-        viewModel.processIntent(FlickrContract.Intent.Search("keanu"))
-
-        viewModel.processIntent(FlickrContract.Intent.UpdateLoadState(LoadState.NotLoading(endOfPaginationReached = false)))
-
-        assertEquals(FlickrContract.UiState.Success, viewModel.uiState.value)
-    }
-
-    @Test
-    fun `onRefreshLoadState Error sets Error with message`() = runTest {
-        viewModel.processIntent(FlickrContract.Intent.Search("keanu"))
-
-        viewModel.processIntent(FlickrContract.Intent.UpdateLoadState(LoadState.Error(RuntimeException("API error"))))
-
-        assertEquals(
-            FlickrContract.UiState.Error("API error"),
-            viewModel.uiState.value
-        )
-    }
-
-    @Test
-    fun `onRefreshLoadState Error uses fallback message when throwable has no message`() = runTest {
-        viewModel.processIntent(FlickrContract.Intent.Search("keanu"))
-
-        viewModel.processIntent(FlickrContract.Intent.UpdateLoadState(LoadState.Error(RuntimeException())))
-
-        assertEquals(
-            FlickrContract.UiState.Error("Failed to load photos"),
-            viewModel.uiState.value
-        )
-    }
-
-    @Test
-    fun `onRefreshLoadState is ignored before any search`() {
-        viewModel.processIntent(FlickrContract.Intent.UpdateLoadState(LoadState.NotLoading(endOfPaginationReached = false)))
-
-        assertEquals(FlickrContract.UiState.Idle, viewModel.uiState.value)
-    }
-
-    @Test
-    fun `new search after success sets Loading again`() = runTest {
-        viewModel.processIntent(FlickrContract.Intent.Search("keanu"))
-        advanceUntilIdle()
-        viewModel.processIntent(FlickrContract.Intent.UpdateLoadState(LoadState.NotLoading(endOfPaginationReached = false)))
 
         viewModel.processIntent(FlickrContract.Intent.Search("matrix"))
-
-        assertEquals(FlickrContract.UiState.Loading, viewModel.uiState.value)
         advanceUntilIdle()
+
         verify(exactly = 1) { repository.searchTag("keanu") }
         verify(exactly = 1) { repository.searchTag("matrix") }
     }

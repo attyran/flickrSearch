@@ -33,8 +33,8 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.paging.LoadState
 import androidx.paging.PagingData
-import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
@@ -54,11 +54,6 @@ fun FlickrApp(
     val hasToken = remember { mutableStateOf(false) }
     val oAuthErrorMessage = rememberSaveable { mutableStateOf<String?>(null) }
     val uiState by viewModel.uiState.collectAsState()
-    val photos = viewModel.searchResults.collectAsLazyPagingItems()
-
-    LaunchedEffect(photos.loadState.refresh) {
-        viewModel.processIntent(FlickrContract.Intent.UpdateLoadState(photos.loadState.refresh))
-    }
 
     val context = LocalContext.current
     LaunchedEffect(authState.value) {
@@ -83,7 +78,6 @@ fun FlickrApp(
 
     FlickrContent(
         uiState = uiState,
-        photos = photos,
         hasToken = hasToken.value,
         oAuthErrorMessage = oAuthErrorMessage.value,
         onSearch = { query ->
@@ -100,7 +94,6 @@ fun FlickrApp(
 @Composable
 fun FlickrContent(
     uiState: FlickrContract.UiState,
-    photos: LazyPagingItems<PhotoItem>,
     hasToken: Boolean,
     oAuthErrorMessage: String?,
     onSearch: (String) -> Unit,
@@ -152,28 +145,40 @@ fun FlickrContent(
 
         when (uiState) {
             FlickrContract.UiState.Idle -> Unit
-            FlickrContract.UiState.Loading -> {
-                ShimmerGrid(modifier = Modifier.fillMaxSize())
-            }
-            FlickrContract.UiState.Success -> {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(
-                        count = photos.itemCount,
-                        key = { index ->
-                            val photo = photos[index]
-                            "${photo?.id}_$index"
-                        }
-                    ) { index ->
-                        val photo = photos[index]
-                        photo?.let {
-                            val imageUrl = String.format(
-                                "https://farm%s.staticflickr.com/%s/%s_%s.jpg",
-                                it.farm, it.server, it.id, it.secret
-                            )
-                            ImageListItem(imageUrl = imageUrl, onPhotoClicked)
+            is FlickrContract.UiState.Success -> {
+                val photos = uiState.photos.collectAsLazyPagingItems()
+                when (val refreshState = photos.loadState.refresh) {
+                    is LoadState.Loading -> {
+                        ShimmerGrid(modifier = Modifier.fillMaxSize())
+                    }
+                    is LoadState.Error -> {
+                        Text(
+                            text = refreshState.error.message ?: "Failed to load photos",
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                    is LoadState.NotLoading -> {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(
+                                count = photos.itemCount,
+                                key = { index ->
+                                    val photo = photos[index]
+                                    "${photo?.id}_$index"
+                                }
+                            ) { index ->
+                                val photo = photos[index]
+                                photo?.let {
+                                    val imageUrl = String.format(
+                                        "https://farm%s.staticflickr.com/%s/%s_%s.jpg",
+                                        it.farm, it.server, it.id, it.secret
+                                    )
+                                    ImageListItem(imageUrl = imageUrl, onPhotoClicked)
+                                }
+                            }
                         }
                     }
                 }
@@ -220,39 +225,35 @@ fun ImageListItem(imageUrl: String, onPhotoClicked: (String) -> Unit) {
 @Preview
 @Composable
 private fun FlickrAppPreview() {
-    val fakePhotosFlow = flowOf(
-        PagingData.from(
-            listOf(
-                PhotoItem(
-                    id = "1",
-                    owner = "owner1",
-                    secret = "secret1",
-                    server = "server1",
-                    farm = "1",
-                    title = "Title 1",
-                    isPublic = "1",
-                    isFriend = "0",
-                    isFamily = "0"
-                ),
-                PhotoItem(
-                    id = "2",
-                    owner = "owner2",
-                    secret = "secret2",
-                    server = "server2",
-                    farm = "2",
-                    title = "Title 2",
-                    isPublic = "1",
-                    isFriend = "0",
-                    isFamily = "0"
-                )
+    val fakePagingData = PagingData.from(
+        listOf(
+            PhotoItem(
+                id = "1",
+                owner = "owner1",
+                secret = "secret1",
+                server = "server1",
+                farm = "1",
+                title = "Title 1",
+                isPublic = "1",
+                isFriend = "0",
+                isFamily = "0"
+            ),
+            PhotoItem(
+                id = "2",
+                owner = "owner2",
+                secret = "secret2",
+                server = "server2",
+                farm = "2",
+                title = "Title 2",
+                isPublic = "1",
+                isFriend = "0",
+                isFamily = "0"
             )
         )
     )
-    val fakePhotos = fakePhotosFlow.collectAsLazyPagingItems()
 
     FlickrContent(
-        uiState = FlickrContract.UiState.Success,
-        photos = fakePhotos,
+        uiState = FlickrContract.UiState.Success(flowOf(fakePagingData)),
         hasToken = true,
         oAuthErrorMessage = null,
         onSearch = {},
