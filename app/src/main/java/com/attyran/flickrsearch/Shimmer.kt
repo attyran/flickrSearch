@@ -8,6 +8,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -58,12 +59,14 @@ fun ShimmerGrid(
     columns: Int = 2,
     itemSize: Dp = 180.dp,
     itemPadding: Dp = 4.dp,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     val rowHeight = itemSize + itemPadding * 2
 
     BoxWithConstraints(modifier = modifier) {
-        val itemCount = remember(maxHeight, rowHeight, columns) {
-            val rows = ceil(maxHeight / rowHeight).toInt().coerceAtLeast(1)
+        val itemCount = remember(maxHeight, rowHeight, columns, contentPadding) {
+            val availableHeight = maxHeight - contentPadding.calculateTopPadding() - contentPadding.calculateBottomPadding()
+            val rows = ceil(availableHeight / rowHeight).toInt().coerceAtLeast(1)
             rows * columns
         }
 
@@ -71,6 +74,7 @@ fun ShimmerGrid(
             columns = GridCells.Fixed(columns),
             modifier = Modifier.fillMaxSize(),
             userScrollEnabled = false,
+            contentPadding = contentPadding
         ) {
             items(itemCount) {
                 ShimmerBox(

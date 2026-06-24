@@ -3,12 +3,19 @@ package com.attyran.flickrsearch
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -19,7 +26,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +47,7 @@ import coil3.request.ImageRequest
 import com.attyran.flickrsearch.network.PhotoItem
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.flowOf
 
 @Composable
@@ -50,16 +57,16 @@ fun FlickrApp(
     oAuthViewModel: OAuthViewModel
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    val authState = oAuthViewModel.authState.collectAsState()
+    val authState by oAuthViewModel.authState.collectAsStateWithLifecycle()
     val hasToken = remember { mutableStateOf(false) }
     val oAuthErrorMessage = rememberSaveable { mutableStateOf<String?>(null) }
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
-    LaunchedEffect(authState.value) {
-        when(authState.value) {
+    LaunchedEffect(authState) {
+        when(authState) {
             is OAuthViewModel.AuthState.Success -> {
-                val url = (authState.value as OAuthViewModel.AuthState.Success).url
+                val url = (authState as OAuthViewModel.AuthState.Success).url
                 val intent = Intent(Intent.ACTION_VIEW, url.toUri())
                 try {
                     context.startActivity(intent)
@@ -71,7 +78,7 @@ fun FlickrApp(
                 hasToken.value = true
             }
             is OAuthViewModel.AuthState.Error -> {
-                oAuthErrorMessage.value = (authState.value as OAuthViewModel.AuthState.Error).message
+                oAuthErrorMessage.value = (authState as OAuthViewModel.AuthState.Error).message
             }
         }
     }
@@ -107,7 +114,8 @@ fun FlickrContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .systemBarsPadding()
+            .statusBarsPadding()
+            .imePadding()
     ) {
         OutlinedTextField(
             value = searchQuery.value,
@@ -129,7 +137,7 @@ fun FlickrContent(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
         ) {
             Text(text = "Search")
         }
@@ -143,57 +151,77 @@ fun FlickrContent(
             }
         }
 
-        when (uiState) {
-            FlickrContract.UiState.Idle -> Unit
-            is FlickrContract.UiState.Success -> {
-                val photos = uiState.photos.collectAsLazyPagingItems()
-                when (val refreshState = photos.loadState.refresh) {
-                    is LoadState.Loading -> {
-                        ShimmerGrid(modifier = Modifier.fillMaxSize())
+        Box(modifier = Modifier.weight(1f)) {
+            when (uiState) {
+                FlickrContract.UiState.Idle -> Unit
+                is FlickrContract.UiState.Success -> {
+                    val photos = uiState.photos.collectAsLazyPagingItems()
+                    val navBarsPadding = WindowInsets.navigationBars.asPaddingValues()
+                    val bottomPadding = if (oAuthErrorMessage == null) {
+                        navBarsPadding.calculateBottomPadding()
+                    } else {
+                        0.dp
                     }
-                    is LoadState.Error -> {
-                        Text(
-                            text = refreshState.error.message ?: "Failed to load photos",
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }
-                    is LoadState.NotLoading -> {
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(2),
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            items(
-                                count = photos.itemCount,
-                                key = { index ->
+                    val gridContentPadding = PaddingValues(bottom = bottomPadding)
+
+                    when (val refreshState = photos.loadState.refresh) {
+                        is LoadState.Loading -> {
+                            ShimmerGrid(
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = gridContentPadding
+                            )
+                        }
+                        is LoadState.Error -> {
+                            Text(
+                                text = refreshState.error.message ?: "Failed to load photos",
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+                        is LoadState.NotLoading -> {
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(2),
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = gridContentPadding
+                            ) {
+                                items(
+                                    count = photos.itemCount,
+                                    key = { index ->
+                                        val photo = photos[index]
+                                        "${photo?.id}_$index"
+                                    }
+                                ) { index ->
                                     val photo = photos[index]
-                                    "${photo?.id}_$index"
-                                }
-                            ) { index ->
-                                val photo = photos[index]
-                                photo?.let {
-                                    val imageUrl = String.format(
-                                        "https://farm%s.staticflickr.com/%s/%s_%s.jpg",
-                                        it.farm, it.server, it.id, it.secret
-                                    )
-                                    ImageListItem(imageUrl = imageUrl, onPhotoClicked)
+                                    photo?.let {
+                                        val imageUrl = String.format(
+                                            "https://farm%s.staticflickr.com/%s/%s_%s.jpg",
+                                            it.farm, it.server, it.id, it.secret
+                                        )
+                                        ImageListItem(imageUrl = imageUrl, onPhotoClicked)
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-            is FlickrContract.UiState.Error -> {
-                Text(
-                    text = uiState.message,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(16.dp)
-                )
+                is FlickrContract.UiState.Error -> {
+                    Text(
+                        text = uiState.message,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
             }
         }
 
         if (oAuthErrorMessage != null) {
-            Text(text = oAuthErrorMessage)
+            Text(
+                text = oAuthErrorMessage,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .padding(16.dp)
+            )
         }
     }
 }
