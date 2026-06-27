@@ -1,46 +1,32 @@
 package com.attyran.flickrsearch
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import com.attyran.flickrsearch.FlickrDestinationsArgs.PHOTO_URL_ARG
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.ui.NavDisplay
 
 @Composable
 fun FlickrNavGraph(
+    backStack: SnapshotStateList<NavKey>,
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController(),
-    startDestination: String = FlickrDestinations.SEARCH_ROUTE,
-    navActions: FlickrNavigationActions = remember(navController) {
-        FlickrNavigationActions(navController)
-    },
     authViewModel: OAuthViewModel
 ) {
-    NavHost(
-        navController = navController,
-        startDestination = startDestination,
-        modifier = modifier
-    ) {
-        composable(FlickrDestinations.SEARCH_ROUTE) {
-            FlickrApp(
-                onPhotoClicked = { photoURL -> navActions.navigateToDetails(photoURL) },
-                oAuthViewModel = authViewModel
-            )
+    NavDisplay(
+        backStack = backStack,
+        modifier = modifier,
+        onBack = { backStack.removeLastOrNull() },
+        entryProvider = entryProvider {
+            entry<SearchKey> {
+                FlickrApp(
+                    onPhotoClicked = { photoURL -> backStack.add(DetailsKey(photoURL)) },
+                    oAuthViewModel = authViewModel
+                )
+            }
+            entry<DetailsKey> { key ->
+                DetailsScreen(photoURL = key.photoURL)
+            }
         }
-        composable(
-            FlickrDestinations.DETAILS_ROUTE,
-            arguments = listOf(
-                navArgument(PHOTO_URL_ARG) { type = NavType.StringType; nullable = false }
-            )
-        ) { entry ->
-            DetailsScreen(
-                entry.arguments?.getString(PHOTO_URL_ARG)!!
-            )
-        }
-    }
+    )
 }

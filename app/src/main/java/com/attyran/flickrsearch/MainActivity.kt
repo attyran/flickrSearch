@@ -7,11 +7,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.runtime.mutableStateListOf
+import androidx.navigation3.runtime.NavKey
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * The main entry point activity of the application, managing edge-to-edge layouts,
- * initializing the Jetpack Compose navigation graph, and handling deep links for the OAuth callback.
+ * initializing the Navigation 3 back stack, and handling deep links for the OAuth callback.
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -19,8 +21,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val backStack = mutableStateListOf<NavKey>(SearchKey)
         setContent {
-            FlickrNavGraph(authViewModel = authViewModel)
+            FlickrNavGraph(
+                backStack = backStack,
+                authViewModel = authViewModel
+            )
         }
     }
 

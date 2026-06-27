@@ -3,6 +3,7 @@ import org.gradle.kotlin.dsl.dependencies
 
 plugins {
     id("com.android.application")
+    id("org.jetbrains.kotlin.plugin.serialization")
     id("dagger.hilt.android.plugin")
     id("com.google.devtools.ksp")
     id("org.jetbrains.kotlin.plugin.compose")
@@ -42,8 +43,15 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
     }
 }
 
@@ -101,8 +109,9 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.okhttp)
 
-    // Navigation
-    implementation(libs.androidx.navigation.compose)
+    // Navigation 3
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
 
     // Hilt
     implementation(libs.hilt.android)
