@@ -8,7 +8,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 
 @Composable
-fun FlickrNavGraph(
+fun FlickrNavDisplay(
     backStack: SnapshotStateList<NavKey>,
     modifier: Modifier = Modifier,
     authViewModel: OAuthViewModel

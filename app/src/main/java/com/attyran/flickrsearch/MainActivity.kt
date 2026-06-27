@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         val backStack = mutableStateListOf<NavKey>(SearchKey)
         setContent {
-            FlickrNavGraph(
+            FlickrNavDisplay(
                 backStack = backStack,
                 authViewModel = authViewModel
             )
